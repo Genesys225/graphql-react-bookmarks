@@ -22,13 +22,13 @@ module.exports = {
       description,
       price: +price,
       date: new Date(date),
-      creator: req.user.id
+      creator: req.userId
     });
     let createdEvent;
     try {
       const result = await event.save();
       createdEvent = normalizeEvent(result);
-      const creator = await User.findById(req.user.id);
+      const creator = await User.findById(req.userId);
       if (!creator) {
         throw new Error("User exists already.");
       }
