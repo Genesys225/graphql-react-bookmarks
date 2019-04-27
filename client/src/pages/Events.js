@@ -3,12 +3,17 @@ import React, { useState, useRef, useContext, useEffect } from "react";
 import Modal from "../components/Modal/Modal";
 import Backdrop from "../components/Backdrop/Backdrop";
 import AuthContext from "../context/auth-context";
+import EventList from "../components/EventList/EventList";
+import Spinner from "../components/Spinner/Spinner";
 import "./Events.css";
 
 function EventsPage() {
   const auth = useContext(AuthContext);
   const [pending, setPending] = useState(false);
   const [events, setEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [pagePresent, setPagePresent] = useState(true);
 
   const titleElRef = useRef(null);
   const priceElRef = useRef(null);
@@ -17,14 +22,16 @@ function EventsPage() {
 
   useEffect(() => {
     fetchEvents();
-    return;
+    return () => {
+      setPagePresent(false);
+    };
   }, []);
 
   const startCreateEventHandler = () => {
     setPending(true);
   };
 
-  const modalConfirmHandler = () => {
+  const modalConfirmHandler = async () => {
     setPending(false);
     const title = titleElRef.current.value;
     const price = +priceElRef.current.value;
@@ -44,8 +51,8 @@ function EventsPage() {
 
     const requestBody = {
       query: `
-          mutation {
-            createEvent(eventInput: {title: "${title}", description: "${description}", price: ${price}, date: "${date}"}) {
+          mutation CreateEvent($title: String!, $description: String!, $price: Float!, $date: String!) {
+            createEvent(eventInput: {title: $title, description: $description, price:$price, date: $date}) {
               _id
               title
               description
@@ -57,36 +64,55 @@ function EventsPage() {
               }
             }
           }
-        `
+        `,
+      variables: {
+        title,
+        price,
+        date,
+        description
+      }
     };
     const { token } = auth;
-    fetch("http://localhost:5000/graphql", {
+    const response = await fetch("http://localhost:5000/graphql", {
       method: "POST",
       body: JSON.stringify(requestBody),
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer " + token
       }
-    })
-      .then(res => {
-        if (res.status !== 200 && res.status !== 201) {
-          throw new Error("Failed!");
+    });
+    try {
+      if (response.status !== 200 && response.status !== 201) {
+        throw new Error("Failed!");
+      }
+      const jsonResponse = await response.json();
+
+      const updatedEvents = [...events];
+      const { _id, title, description, date, price } = jsonResponse.data.createEvent;
+      updatedEvents.push({
+        _id,
+        title,
+        description,
+        date,
+        price,
+        creator: {
+          _id: auth.userId
         }
-        return res.json();
-      })
-      .then(() => {
-        fetchEvents();
-      })
-      .catch(err => {
-        console.log(err);
       });
+
+      setEvents(updatedEvents);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const modalCancelHandler = () => {
     setPending(false);
+    setSelectedEvent(null);
   };
 
-  const fetchEvents = () => {
+  const fetchEvents = async () => {
+    setIsLoading(true);
     const requestBody = {
       query: `
         query {
@@ -104,40 +130,84 @@ function EventsPage() {
       }
     `
     };
-
-    fetch("http://localhost:5000/graphql", {
-      method: "POST",
-      body: JSON.stringify(requestBody),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-      .then(res => {
-        if (res.status !== 200 && res.status !== 201) {
-          throw new Error("Failed!");
+    try {
+      const result = await fetch("http://localhost:5000/graphql", {
+        method: "POST",
+        body: JSON.stringify(requestBody),
+        headers: {
+          "Content-Type": "application/json"
         }
-        return res.json();
-      })
-      .then(resData => {
-        const curEvents = resData.data.events;
-        setEvents(curEvents);
-      })
-      .catch(err => {
-        console.log(err);
       });
+
+      if (result.status !== 200 && result.status !== 201) {
+        throw new Error("Failed!");
+      }
+
+      const jsonResult = await result.json();
+      if (pagePresent) {
+        setEvents(jsonResult.data.events);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      if (pagePresent) {
+        setIsLoading(false);
+      }
+      console.log(error);
+    }
   };
 
-  const eventList = events.map(event => {
-    return (
-      <li key={event._id} className="events__list-item">
-        {event.title}
-      </li>
-    );
-  });
+  const bookEventHandler = async () => {
+    if (!auth.token) {
+      setSelectedEvent(null);
+      return;
+    }
+    // setIsLoading(true);
+    const requestBody = {
+      query: `
+        mutation BookEvent($id: ID!) {
+            bookEvent(eventId: $id)  {
+            _id
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      variables: {
+        id: selectedEvent._id
+      }
+    };
+    try {
+      const result = await fetch("http://localhost:5000/graphql", {
+        method: "POST",
+        body: JSON.stringify(requestBody),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + auth.token
+        }
+      });
+      if (result.status !== 200 && result.status !== 201) {
+        throw new Error("Failed!");
+      }
+
+      const jsonResult = await result.json();
+      console.log(jsonResult);
+      setSelectedEvent(null);
+      // await setEvents(jsonResult.data.events);
+      // await setIsLoading(false);
+    } catch (error) {
+      await setIsLoading(false);
+      console.log(error);
+    }
+  };
+
+  const showDetailHandler = eventId => {
+    const foundSelectedEvent = events.find(event => event._id === eventId);
+    setSelectedEvent(foundSelectedEvent);
+  };
 
   return (
     <>
-      {pending && <Backdrop />}
+      {(pending || selectedEvent) && <Backdrop />}
       {pending && (
         <Modal
           title="Add Event"
@@ -145,6 +215,7 @@ function EventsPage() {
           canConfirm
           onCancel={modalCancelHandler}
           onConfirm={modalConfirmHandler}
+          confirmText="Confirm"
         >
           <form>
             <div className="form-control">
@@ -166,6 +237,22 @@ function EventsPage() {
           </form>
         </Modal>
       )}
+      {selectedEvent && (
+        <Modal
+          title={selectedEvent.title}
+          canCancel
+          canConfirm
+          onCancel={modalCancelHandler}
+          onConfirm={bookEventHandler}
+          confirmText="Book"
+        >
+          <h1>{selectedEvent.title}</h1>
+          <h2>
+            {selectedEvent.price} - {new Date(selectedEvent.date).toLocaleDateString("de-DE")}
+          </h2>
+          <p>{selectedEvent.description}</p>
+        </Modal>
+      )}
       {auth.token && (
         <div className="events-control">
           <p>Share your own Events!</p>
@@ -174,7 +261,11 @@ function EventsPage() {
           </button>
         </div>
       )}
-      <ul className="events__list">{eventList}</ul>
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <EventList onEventDetail={showDetailHandler} events={events} authUserId={auth.userId} />
+      )}
     </>
   );
 }

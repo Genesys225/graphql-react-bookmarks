@@ -1,16 +1,18 @@
 const Event = require("../../models/event");
 const Booking = require("../../models/booking");
 const { normalizeBooking } = require("./merge");
+const { normalizeEvent } = require("./merge");
 
 module.exports = {
   bookings: async (args, req) => {
     if (!req.isAuth) throw new Error("Unauthenticated");
     try {
-      const bookings = await Booking.find();
+      const bookings = await Booking.find({ user: req.userId });
       return bookings.map(booking => {
         return normalizeBooking(booking);
       });
     } catch (error) {
+      console.log(error);
       throw error;
     }
   },
@@ -19,7 +21,7 @@ module.exports = {
     if (!req.isAuth) throw new Error("Unauthenticated");
     const event = await Event.findOne({ _id: args.eventId });
     const booking = new Booking({
-      user: req.user.id,
+      user: req.userId,
       event
     });
     const result = await booking.save();
