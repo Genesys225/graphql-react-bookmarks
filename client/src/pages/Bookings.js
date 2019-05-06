@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Spinner from "../components/Spinner/Spinner";
 import BookingList from "../components/BookingList/BookingList";
 import { Query, withApollo } from "react-apollo";
@@ -7,7 +7,6 @@ import { GET_BOOKINGS, CANCEL_BOOKING } from "../Gql";
 const BookingsPage = props => {
   const { client } = props;
   const { mutate } = client;
-  const [isLoading, setIsLoading] = useState(false);
 
   const cancelBookingHandler = async bookingId => {
     await mutate({
@@ -16,7 +15,6 @@ const BookingsPage = props => {
         id: bookingId
       }
     });
-    await setIsLoading(false);
   };
 
   return (

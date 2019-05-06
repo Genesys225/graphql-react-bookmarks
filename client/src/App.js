@@ -4,7 +4,8 @@ import ApolloClient, { InMemoryCache } from "apollo-boost";
 import { ApolloProvider } from "react-apollo";
 import { persistCache } from "apollo-cache-persist";
 
-import { GET_BOOKINGS, GET_BOOKINGS_CACHED } from "./Gql";
+import networkMiddleware from "./Gql/networkMiddleware";
+import onError from "./Gql/errorHandaling";
 import AuthPage from "./pages/Auth";
 import BookingsPage from "./pages/Bookings";
 import EventsPage from "./pages/Events";
@@ -59,50 +60,8 @@ function App() {
       },
       resolvers: {}
     },
-    request: operation => {
-      console.log(client.cache);
-      switch (operation.operationName) {
-        case "CancelBooking":
-          const { id: cancelededBookingId } = operation.variables;
-          const { bookings } = client.readQuery({ query: GET_BOOKINGS_CACHED });
-          const updatedBookings = bookings.filter(booking => booking._id !== cancelededBookingId);
-          client.writeData({
-            data: { bookings: updatedBookings }
-          });
-          break;
-        case "BookEvent":
-          if (!client.cache.data.bookings) {
-            client.writeData({
-              data: {
-                bookings: client.query({ query: GET_BOOKINGS })
-              }
-            });
-            if (!client.cache.data.bookings)
-              client.writeData({
-                data: {
-                  bookings: []
-                }
-              });
-          }
-          // const { id: bookedEventID } = operation.variables;
-          console.log(operation);
-          break;
-        default:
-      }
-
-      operation.setContext({
-        headers: {
-          Authorization: "Bearer " + sessionStorage.getItem("token")
-        }
-      });
-    },
-    onError: ({ graphQLErrors, networkError }) => {
-      if (graphQLErrors)
-        graphQLErrors.map(({ message, locations, path }) =>
-          console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`)
-        );
-      if (networkError) console.log(`[Network error]: ${networkError}`);
-    }
+    request: operation => networkMiddleware(operation, client),
+    onError
   });
 
   return (
