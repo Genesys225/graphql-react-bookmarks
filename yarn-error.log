@@ -1,0 +1,51 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js add apollo-server-express
+
+PATH: 
+  C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\User\bin;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\WinAVR-20100110\bin;C:\WinAVR-20100110\utils\bin;C:\Users\User\AppData\Roaming\Dashlane\6.1843.0.14402\bin\Firefox_Extension\{442718d9-475e-452a-b3e1-fb1ee16b8e9f}\components;C:\Users\User\AppData\Roaming\Dashlane\6.1843.0.14402\ucrt;C:\Users\User\AppData\Roaming\Dashlane\6.1843.0.14402\bin\Qt;C:\Users\User\AppData\Roaming\Dashlane\6.1843.0.14402\ucrt;C:\Users\User\AppData\Roaming\Dashlane\6.1843.0.14402\bin\Ssl;C:\Users\User\AppData\Local\Yarn\bin;C:\Users\User\AppData\Local\GitHubDesktop\bin;C:\Users\User\AppData\Local\Programs\Microsoft VS Code\bin;%DASHLANE_DLL_DIR%;C:\Program Files\nodejs;C:\windows\system32;C:\Program Files\MongoDB\Server\4.0\bin;C:\Program Files\MongoDB\Server\4.0;C:\Windows\system32\WindowsPowerShell\v1.0;C:\Program Files (x86)\Yarn\bin;C:\Program Files\Microsoft VS Code\bin;C:\ProgramData\chocolatey\bin;C:\Python27;C:\Python27\scripts;C:\Users\User\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\User\AppData\Roaming\Dashlane\6.1907.0.17833\bin\Firefox_Extension\{442718d9-475e-452a-b3e1-fb1ee16b8e9f}\components;C:\Users\User\AppData\Roaming\Dashlane\6.1907.0.17833\ucrt;C:\Users\User\AppData\Roaming\Dashlane\6.1907.0.17833\bin\Qt;C:\Users\User\AppData\Roaming\Dashlane\6.1907.0.17833\bin\Ssl
+
+Yarn version: 
+  1.12.3
+
+Node version: 
+  10.13.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: EPERM: operation not permitted, scandir 'C:\Tochen_media\graphql-react-bookmarks\node_modules\@types'
+
+npm manifest: 
+  {
+    "name": "graphql-react-bookmarks",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start": "nodemon app.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "bcryptjs": "^2.4.3",
+      "body-parser": "^1.18.3",
+      "dataloader": "^1.4.0",
+      "express": "^4.16.4",
+      "graphql": "^0.13.2",
+      "jsonwebtoken": "^8.5.1",
+      "mongoose": "^5.5.2",
+      "nodemon": "^1.18.11"
+    },
+    "devDependencies": {
+      "tslint": "^5.16.0",
+      "typescript": "^3.4.5"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

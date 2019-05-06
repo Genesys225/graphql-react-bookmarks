@@ -1,9 +1,11 @@
 import React, { useRef, useState, useContext } from "react";
+import { withApollo } from "react-apollo";
+import { LOGIN, SIGN_UP } from "../Gql/authQueries";
 
 import "./Auth.css";
 import AuthContext from "../context/auth-context";
 
-const AuthPage = () => {
+const AuthPage = props => {
   const auth = useContext(AuthContext);
   const emailEl = useRef(null);
   const passwordEl = useRef(null);
@@ -14,67 +16,26 @@ const AuthPage = () => {
     setIsLogin(!prevState);
   };
 
-  const submitHandler = event => {
+  const submitHandler = async event => {
     event.preventDefault();
     const email = emailEl.current.value;
     const password = passwordEl.current.value;
 
     if (email.trim().length === 0 || password.trim().length === 0) return;
 
-    let requestBody = {
-      query: `
-        query Login($email: String!, $password: String!) {
-          login(email: $email, password: $password) {
-            userId
-            token
-            tokenExpiration
-          }
-        }
-      `,
+    const loginData = await props.client.query({
+      query: isLogin ? LOGIN : SIGN_UP,
       variables: {
         email,
         password
-      }
-    };
-    if (!isLogin) {
-      requestBody = {
-        query: `
-        mutation CreateUser($email: String!, $password: String!) {
-          createUser(userInput:{$email, password: $password}) {
-            _id
-            email
-          }
-        }
-        `,
-        variables: {
-          email,
-          password
-        }
-      };
-    }
+      },
+      fetchPolicy: "no-cache"
+    });
 
-    fetch("http://localhost:5000/graphql", {
-      method: "POST",
-      body: JSON.stringify(requestBody),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-      .then(res => {
-        if (res.status !== 200 && res.status !== 201) {
-          throw new Error("Failed!");
-        }
-        return res.json();
-      })
-      .then(resData => {
-        const { token, userId, tokenExpiration } = resData.data.login;
-        if (token) {
-          auth.login(token, userId, tokenExpiration);
-        }
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    const { token, userId, tokenExpiration } = loginData.data.login;
+    if (token) {
+      auth.login(token, userId, tokenExpiration);
+    }
   };
 
   return (
@@ -99,4 +60,4 @@ const AuthPage = () => {
     </>
   );
 };
-export default AuthPage;
+export default withApollo(AuthPage);

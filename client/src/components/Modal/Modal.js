@@ -3,6 +3,8 @@ import React from "react";
 import "./Modal.css";
 
 const modal = props => (
+  <>
+  {props.isOpen && (
   <div className="modal">
     <header className="modal__header">
       <h1>{props.title}</h1>
@@ -20,7 +22,9 @@ const modal = props => (
         </button>
       )}
     </section>
-  </div>
+  </div>)
+  } 
+  </>
 );
 
 export default modal;

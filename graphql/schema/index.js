@@ -1,14 +1,14 @@
-const { buildSchema } = require("graphql");
+const { gql } = require("apollo-server-express");
 
-module.exports = buildSchema(`
+const schema = gql`
   type Booking {
     _id: ID!
     event: Event!
     user: User!
     createdAt: String!
     updatedAt: String!
-  }    
-      
+  }
+
   type Event {
     _id: ID!
     title: String!
@@ -46,7 +46,7 @@ module.exports = buildSchema(`
   type RootQuery {
     events: [Event!]!
     bookings: [Booking!]!
-    login(email: String!, password: String!): AuthData!
+    login(userInput: UserInput): AuthData
   }
 
   type RootMutation {
@@ -60,4 +60,6 @@ module.exports = buildSchema(`
     query: RootQuery
     mutation: RootMutation
   }
-  `);
+`;
+
+module.exports = schema;

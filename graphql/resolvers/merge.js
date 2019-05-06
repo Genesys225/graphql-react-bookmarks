@@ -3,6 +3,22 @@ const Event = require("../../models/event");
 const User = require("../../models/user");
 const { dateToString } = require("../../utilities/date");
 
+// interface User {
+//   id: string;
+//   email: String;
+//   password: String;
+//   createdEvents: [Event];
+// }
+
+// interface Event {
+//   id: string;
+//   title: String;
+//   description: String;
+//   price: Number;
+//   date: String;
+//   creator: User;
+// }
+
 const eventLoader = new DataLoader(eventIds => {
   return events(eventIds);
 });

@@ -1,4 +1,15 @@
-import React, { useState, useRef, useContext, useEffect } from "react";
+import React, { useRef, useContext } from "react";
+import { Query, Mutation, withApollo } from "react-apollo";
+
+import {
+  CREATE_EVENT,
+  FETCH_EVENTS,
+  BOOK_EVENT,
+  SELECT_EVENT,
+  GET_BOOKINGS_CACHED,
+  FETCH_EVENTS_CACHED,
+  CREATE_EVENT_MODAL
+} from "../Gql";
 
 import Modal from "../components/Modal/Modal";
 import Backdrop from "../components/Backdrop/Backdrop";
@@ -7,267 +18,182 @@ import EventList from "../components/EventList/EventList";
 import Spinner from "../components/Spinner/Spinner";
 import "./Events.css";
 
-function EventsPage() {
+const EventsPage = props => {
+  const { client } = props;
   const auth = useContext(AuthContext);
-  const [pending, setPending] = useState(false);
-  const [events, setEvents] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [pagePresent, setPagePresent] = useState(true);
 
   const titleElRef = useRef(null);
   const priceElRef = useRef(null);
   const dateElRef = useRef(null);
   const descriptionElRef = useRef(null);
 
-  useEffect(() => {
-    fetchEvents();
-    return () => {
-      setPagePresent(false);
-    };
-  }, []);
+  const openCreateEventModal = state =>
+    client.writeData({
+      data: { createEventModal: state }
+    });
 
-  const startCreateEventHandler = () => {
-    setPending(true);
-  };
+  const setSelectedEvent = data => client.writeData({ data: { selectedEvent: data } });
 
-  const modalConfirmHandler = async () => {
-    setPending(false);
-    const title = titleElRef.current.value;
-    const price = +priceElRef.current.value;
-    const date = dateElRef.current.value;
-    const description = descriptionElRef.current.value;
-
+  const createEventHandler = async () => {
+    const inputTitle = titleElRef.current.value;
+    const inputPrice = +priceElRef.current.value;
+    const inputDate = dateElRef.current.value;
+    const inputDescription = descriptionElRef.current.value;
     if (
-      title.trim().length === 0 ||
-      price.length <= 0 ||
-      date.trim().length === 0 ||
-      description.trim().length === 0
+      inputTitle.trim().length === 0 ||
+      inputPrice.length <= 0 ||
+      inputDate.trim().length === 0 ||
+      inputDescription.trim().length === 0
     )
       return;
 
-    const event = { title, price, date, description };
-    console.log(event);
-
-    const requestBody = {
-      query: `
-          mutation CreateEvent($title: String!, $description: String!, $price: Float!, $date: String!) {
-            createEvent(eventInput: {title: $title, description: $description, price:$price, date: $date}) {
-              _id
-              title
-              description
-              date
-              price
-              creator {
-                _id
-                email
-              }
-            }
-          }
-        `,
+    const {
+      data: { createEvent }
+    } = await client.mutate({
+      mutation: CREATE_EVENT,
       variables: {
-        title,
-        price,
-        date,
-        description
-      }
-    };
-    const { token } = auth;
-    const response = await fetch("http://localhost:5000/graphql", {
-      method: "POST",
-      body: JSON.stringify(requestBody),
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token
+        title: inputTitle,
+        description: inputDescription,
+        date: inputDate,
+        price: inputPrice
       }
     });
-    try {
-      if (response.status !== 200 && response.status !== 201) {
-        throw new Error("Failed!");
-      }
-      const jsonResponse = await response.json();
 
-      const updatedEvents = [...events];
-      const { _id, title, description, date, price } = jsonResponse.data.createEvent;
-      updatedEvents.push({
-        _id,
-        title,
-        description,
-        date,
-        price,
-        creator: {
-          _id: auth.userId
-        }
-      });
-
-      setEvents(updatedEvents);
-    } catch (err) {
-      console.log(err);
-    }
+    const { events } = await client.readQuery({ query: FETCH_EVENTS_CACHED });
+    console.log(createEvent);
+    events.push(createEvent);
+    client.writeData({ data: { events } });
+    console.log(client.cache);
+    openCreateEventModal(false);
   };
 
   const modalCancelHandler = () => {
-    setPending(false);
     setSelectedEvent(null);
+    openCreateEventModal(false);
   };
 
-  const fetchEvents = async () => {
-    setIsLoading(true);
-    const requestBody = {
-      query: `
-        query {
-            events {
-            _id
-            title
-            description
-            date
-            price
-            creator {
-                _id
-                email
-            }
-        }
-      }
-    `
-    };
-    try {
-      const result = await fetch("http://localhost:5000/graphql", {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      });
-
-      if (result.status !== 200 && result.status !== 201) {
-        throw new Error("Failed!");
-      }
-
-      const jsonResult = await result.json();
-      if (pagePresent) {
-        setEvents(jsonResult.data.events);
-        setIsLoading(false);
-      }
-    } catch (error) {
-      if (pagePresent) {
-        setIsLoading(false);
-      }
-      console.log(error);
-    }
-  };
-
-  const bookEventHandler = async () => {
-    if (!auth.token) {
-      setSelectedEvent(null);
-      return;
-    }
-    // setIsLoading(true);
-    const requestBody = {
-      query: `
-        mutation BookEvent($id: ID!) {
-            bookEvent(eventId: $id)  {
-            _id
-            createdAt
-            updatedAt
-          }
-        }
-      `,
-      variables: {
-        id: selectedEvent._id
-      }
-    };
-    try {
-      const result = await fetch("http://localhost:5000/graphql", {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + auth.token
-        }
-      });
-      if (result.status !== 200 && result.status !== 201) {
-        throw new Error("Failed!");
-      }
-
-      const jsonResult = await result.json();
-      console.log(jsonResult);
-      setSelectedEvent(null);
-      // await setEvents(jsonResult.data.events);
-      // await setIsLoading(false);
-    } catch (error) {
-      await setIsLoading(false);
-      console.log(error);
-    }
-  };
-
-  const showDetailHandler = eventId => {
+  const showDetailHandler = async eventId => {
+    const { events } = await client.readQuery({ query: FETCH_EVENTS_CACHED });
     const foundSelectedEvent = events.find(event => event._id === eventId);
     setSelectedEvent(foundSelectedEvent);
   };
 
   return (
     <>
-      {(pending || selectedEvent) && <Backdrop />}
-      {pending && (
-        <Modal
-          title="Add Event"
-          canCancel
-          canConfirm
-          onCancel={modalCancelHandler}
-          onConfirm={modalConfirmHandler}
-          confirmText="Confirm"
-        >
-          <form>
-            <div className="form-control">
-              <label htmlFor="title">Title</label>
-              <input type="text" id="title" ref={titleElRef} />
-            </div>
-            <div className="form-control">
-              <label htmlFor="price">Price</label>
-              <input type="number" id="price" ref={priceElRef} />
-            </div>
-            <div className="form-control">
-              <label htmlFor="date">Date</label>
-              <input type="datetime-local" id="date" ref={dateElRef} />
-            </div>
-            <div className="form-control">
-              <label htmlFor="description">Description</label>
-              <textarea id="description" rows="4" ref={descriptionElRef} />
-            </div>
-          </form>
-        </Modal>
-      )}
-      {selectedEvent && (
-        <Modal
-          title={selectedEvent.title}
-          canCancel
-          canConfirm
-          onCancel={modalCancelHandler}
-          onConfirm={bookEventHandler}
-          confirmText="Book"
-        >
-          <h1>{selectedEvent.title}</h1>
-          <h2>
-            {selectedEvent.price} - {new Date(selectedEvent.date).toLocaleDateString("de-DE")}
-          </h2>
-          <p>{selectedEvent.description}</p>
-        </Modal>
-      )}
+      <Query query={CREATE_EVENT_MODAL}>
+        {({ data: { createEventModal }, client }) => (
+          <>
+            {createEventModal && <Backdrop />}
+            <Modal
+              isOpen={createEventModal}
+              title="Add Event"
+              canCancel
+              canConfirm
+              onCancel={modalCancelHandler}
+              onConfirm={createEventHandler}
+              confirmText={"Confirm"}
+            >
+              <form>
+                <div className="form-control">
+                  <label htmlFor="title">Title</label>
+                  <input type="text" id="title" ref={titleElRef} required />
+                </div>
+                <div className="form-control">
+                  <label htmlFor="price">Price</label>
+                  <input type="number" id="price" ref={priceElRef} required />
+                </div>
+                <div className="form-control">
+                  <label htmlFor="date">Date</label>
+                  <input type="datetime-local" id="date" ref={dateElRef} required />
+                </div>
+                <div className="form-control">
+                  <label htmlFor="description">Description</label>
+                  <textarea id="description" rows="4" ref={descriptionElRef} required />
+                </div>
+              </form>
+            </Modal>
+          </>
+        )}
+      </Query>
+
+      <Query query={SELECT_EVENT}>
+        {({ data: { selectedEvent } }) => {
+          return selectedEvent ? (
+            <Mutation mutation={BOOK_EVENT}>
+              {(bookEvent, { loading }) => {
+                const bookEventHandler = async () => {
+                  if (!auth.token) {
+                    setSelectedEvent(null);
+                    return;
+                  }
+                  const {
+                    data: { bookEvent: newBooking }
+                  } = await bookEvent({
+                    variables: {
+                      id: selectedEvent._id
+                    }
+                  });
+                  const { bookings: cachedBookings } = client.readQuery({
+                    query: GET_BOOKINGS_CACHED
+                  });
+                  const { _id, title, date, __typename } = selectedEvent;
+                  newBooking.event = { _id, title, date, __typename };
+                  client.writeData({ data: { bookings: cachedBookings.push(newBooking) } });
+                  setSelectedEvent(null);
+                };
+
+                return (
+                  <>
+                    <Backdrop />
+                    <Modal
+                      isOpen={true}
+                      title={selectedEvent.title}
+                      canCancel
+                      canConfirm
+                      onCancel={modalCancelHandler}
+                      onConfirm={bookEventHandler}
+                      confirmText={"Book"}
+                    >
+                      {loading && <Spinner />}
+                      {!loading && (
+                        <>
+                          <h1>{selectedEvent.title}</h1>
+                          <h2>
+                            {selectedEvent.price} -{" "}
+                            {new Date(selectedEvent.date).toLocaleDateString("de-DE")}
+                          </h2>
+                          <p>{selectedEvent.description}</p>
+                        </>
+                      )}
+                    </Modal>
+                  </>
+                );
+              }}
+            </Mutation>
+          ) : null;
+        }}
+      </Query>
+
       {auth.token && (
         <div className="events-control">
           <p>Share your own Events!</p>
-          <button className="btn" onClick={startCreateEventHandler}>
+          <button className="btn" onClick={() => openCreateEventModal(true)}>
             Create Event
           </button>
         </div>
       )}
-      {isLoading ? (
-        <Spinner />
-      ) : (
-        <EventList onEventDetail={showDetailHandler} events={events} authUserId={auth.userId} />
-      )}
+      <Query query={FETCH_EVENTS}>
+        {({ data: { events }, loading, client }) => {
+          console.log(!!auth.token);
+          if (loading) return <Spinner />;
+
+          return (
+            <EventList onEventDetail={showDetailHandler} events={events} authUserId={auth.userId} />
+          );
+        }}
+      </Query>
     </>
   );
-}
+};
 
-export default EventsPage;
+export default withApollo(EventsPage);

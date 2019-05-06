@@ -1,6 +1,7 @@
+const { ApolloServer } = require("apollo-server-express");
 const express = require("express");
 const bodyParser = require("body-parser");
-const graphqlHttp = require("express-graphql");
+
 const mongoose = require("mongoose");
 const verifyJwt = require("./middleware/verifyJwt");
 const manageHeaders = require("./middleware/manageHeaders");
@@ -16,14 +17,9 @@ app.use(manageHeaders);
 
 app.use(verifyJwt);
 
-app.use(
-  "/graphql",
-  graphqlHttp({
-    schema: schema,
-    rootValue: resolvers,
-    graphiql: true
-  })
-);
+const server = new ApolloServer({ typeDefs: schema, resolvers, context: ({ req }) => req });
+
+server.applyMiddleware({ app, path: "/graphql" });
 
 mongoose
   .connect(process.env.MONGO_URI)

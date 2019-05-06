@@ -1,106 +1,34 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState } from "react";
 import Spinner from "../components/Spinner/Spinner";
 import BookingList from "../components/BookingList/BookingList";
-import AuthContext from "../context/auth-context";
+import { Query, withApollo } from "react-apollo";
+import { GET_BOOKINGS, CANCEL_BOOKING } from "../Gql";
 
-function BookingsPage() {
-  const auth = useContext(AuthContext);
-  const [bookings, setBookings] = useState([]);
+const BookingsPage = props => {
+  const { client } = props;
+  const { mutate } = client;
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    fetchBookings();
-    return;
-  }, []);
-
   const cancelBookingHandler = async bookingId => {
-    setIsLoading(true);
-    const requestBody = {
-      query: `
-        mutation CancelBooking($id: ID!) {
-            cancelBooking(bookingId: $id) {
-            _id
-            title
-          }
-        }
-      `,
+    await mutate({
+      mutation: CANCEL_BOOKING,
       variables: {
         id: bookingId
       }
-    };
-    try {
-      const result = await fetch("http://localhost:5000/graphql", {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + auth.token
-        }
-      });
-
-      if (result.status !== 200 && result.status !== 201) {
-        throw new Error("Failed!");
-      }
-
-      const jsonResult = await result.json();
-      const updatedClientBookings = bookings.filter(booking => booking._id !== bookingId);
-      await setBookings(updatedClientBookings);
-      await setIsLoading(false);
-    } catch (error) {
-      await setIsLoading(false);
-      console.log(error);
-    }
-  };
-
-  const fetchBookings = async () => {
-    setIsLoading(true);
-    const requestBody = {
-      query: `
-        query {
-            bookings {
-            _id
-            createdAt
-            event {
-              _id
-              title
-              date
-            }
-        }
-      }
-    `
-    };
-    try {
-      const result = await fetch("http://localhost:5000/graphql", {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + auth.token
-        }
-      });
-
-      if (result.status !== 200 && result.status !== 201) {
-        throw new Error("Failed!");
-      }
-
-      const jsonResult = await result.json();
-      await setBookings(jsonResult.data.bookings);
-      await setIsLoading(false);
-    } catch (error) {
-      await setIsLoading(false);
-      console.log(error);
-    }
+    });
+    await setIsLoading(false);
   };
 
   return (
-    <>
-      {isLoading ? (
-        <Spinner />
-      ) : (
-        <BookingList bookings={bookings} onCancelBooking={cancelBookingHandler} />
-      )}
-    </>
-  );
-}
+    <Query query={GET_BOOKINGS}>
+      {({ data, loading, client }) => {
+        if (loading) return <Spinner />;
+        const { bookings } = data;
 
-export default BookingsPage;
+        return <BookingList bookings={bookings} onCancelBooking={cancelBookingHandler} />;
+      }}
+    </Query>
+  );
+};
+
+export default withApollo(BookingsPage);

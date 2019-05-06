@@ -7,7 +7,7 @@ module.exports = (req, res, next) => {
     return next();
   }
   const token = authHeader.split(" ")[1];
-  if (!token || token === "") {
+  if (!token || token === "" || token === "null") {
     req.isAuth = false;
     return next();
   }
@@ -15,6 +15,7 @@ module.exports = (req, res, next) => {
   try {
     decodedToken = jwt.verify(token, "secret");
   } catch (error) {
+    console.trace(error);
     req.isAuth = false;
     return next();
   }
@@ -24,5 +25,6 @@ module.exports = (req, res, next) => {
   }
   req.isAuth = true;
   req.userId = decodedToken.userId;
+
   next();
 };
