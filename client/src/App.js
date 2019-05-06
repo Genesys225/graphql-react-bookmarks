@@ -24,7 +24,6 @@ function App() {
   const [token, setToken] = useState(
     sessionStorage.getItem("token") != null ? sessionStorage.getItem("token") : ""
   );
-  console.log(sessionStorage.getItem("userId"));
   const [userId, setUserId] = useState(
     sessionStorage.getItem("userId") != null ? sessionStorage.getItem("userId") : ""
   );

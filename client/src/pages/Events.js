@@ -81,7 +81,7 @@ const EventsPage = props => {
   return (
     <>
       <Query query={CREATE_EVENT_MODAL}>
-        {({ data: { createEventModal }, client }) => (
+        {({ data: { createEventModal } }) => (
           <>
             {createEventModal && <Backdrop />}
             <Modal
@@ -136,8 +136,7 @@ const EventsPage = props => {
                   const { bookings: cachedBookings } = client.readQuery({
                     query: GET_BOOKINGS_CACHED
                   });
-                  const { _id, title, date, __typename } = selectedEvent;
-                  newBooking.event = { _id, title, date, __typename };
+                  newBooking.event = { ...selectedEvent };
                   client.writeData({ data: { bookings: cachedBookings.push(newBooking) } });
                   setSelectedEvent(null);
                 };
