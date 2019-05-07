@@ -26,6 +26,7 @@ const EventsPage = props => {
   const priceElRef = useRef(null);
   const dateElRef = useRef(null);
   const descriptionElRef = useRef(null);
+  const formElRef = useRef(null);
 
   const openCreateEventModal = state =>
     client.writeData({
@@ -39,6 +40,8 @@ const EventsPage = props => {
     const inputPrice = +priceElRef.current.value;
     const inputDate = dateElRef.current.value;
     const inputDescription = descriptionElRef.current.value;
+    const what = formElRef.current.dispatchEvent(new Event("submit"));
+    console.log(what);
     if (
       inputTitle.trim().length === 0 ||
       inputPrice.length <= 0 ||
@@ -46,7 +49,6 @@ const EventsPage = props => {
       inputDescription.trim().length === 0
     )
       return;
-
     const {
       data: { createEvent }
     } = await client.mutate({
@@ -61,7 +63,7 @@ const EventsPage = props => {
 
     const { events } = await client.readQuery({ query: FETCH_EVENTS_CACHED });
     console.log(createEvent);
-    events.push(createEvent);
+    events.push({ ...createEvent, _id: auth.userId });
     client.writeData({ data: { events } });
     console.log(client.cache);
     openCreateEventModal(false);
@@ -93,7 +95,7 @@ const EventsPage = props => {
               onConfirm={createEventHandler}
               confirmText={"Confirm"}
             >
-              <form>
+              <form ref={formElRef} onSubmit={e => console.log(e)}>
                 <div className="form-control">
                   <label htmlFor="title">Title</label>
                   <input type="text" id="title" ref={titleElRef} required />
@@ -121,23 +123,23 @@ const EventsPage = props => {
           return selectedEvent ? (
             <Mutation mutation={BOOK_EVENT}>
               {(bookEvent, { loading }) => {
-                const bookEventHandler = async () => {
+                const bookEventHandler = () => {
                   if (!auth.token) {
                     setSelectedEvent(null);
                     return;
                   }
-                  const {
-                    data: { bookEvent: newBooking }
-                  } = await bookEvent({
+                  bookEvent({
                     variables: {
                       id: selectedEvent._id
+                    },
+                    update: (client, { data: { bookEvent: newBooking } }) => {
+                      const { bookings: cachedBookings } = client.readQuery({
+                        query: GET_BOOKINGS_CACHED
+                      });
+                      newBooking.event = { ...selectedEvent };
+                      client.writeData({ data: { bookings: cachedBookings.push(newBooking) } });
                     }
                   });
-                  const { bookings: cachedBookings } = client.readQuery({
-                    query: GET_BOOKINGS_CACHED
-                  });
-                  newBooking.event = { ...selectedEvent };
-                  client.writeData({ data: { bookings: cachedBookings.push(newBooking) } });
                   setSelectedEvent(null);
                 };
 
@@ -183,7 +185,6 @@ const EventsPage = props => {
       )}
       <Query query={FETCH_EVENTS}>
         {({ data: { events }, loading, client }) => {
-          console.log(!!auth.token);
           if (loading) return <Spinner />;
 
           return (

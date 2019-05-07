@@ -1,7 +1,6 @@
 import { GET_BOOKINGS, GET_BOOKINGS_CACHED } from "../";
 
 export default (operation, client) => {
-  console.log(client.cache);
   switch (operation.operationName) {
     case "CancelBooking":
       const { id: cancelededBookingId } = operation.variables;

@@ -11,7 +11,7 @@ const BookingList = props => {
             {booking._id}
           </div>
           <div className="booking__item-actions">
-            <button className="btn" onClick={props.onCancelBooking.bind(this, booking._id)}>
+            <button className="btn" onClick={() => props.onCancelBooking(booking._id)}>
               Cancel
             </button>
           </div>

@@ -4,6 +4,7 @@ import "./EventItem.css";
 
 const eventItem = props => (
   <li className="events__list-item">
+    {console.log(props.userId, props.creatorId)}
     <div>
       <h1>{props.title}</h1>
       <h2>

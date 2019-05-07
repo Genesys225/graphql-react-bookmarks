@@ -6,10 +6,9 @@ import { GET_BOOKINGS, CANCEL_BOOKING } from "../Gql";
 
 const BookingsPage = props => {
   const { client } = props;
-  const { mutate } = client;
 
   const cancelBookingHandler = async bookingId => {
-    await mutate({
+    await client.mutate({
       mutation: CANCEL_BOOKING,
       variables: {
         id: bookingId
@@ -22,7 +21,6 @@ const BookingsPage = props => {
       {({ data, loading, client }) => {
         if (loading) return <Spinner />;
         const { bookings } = data;
-
         return <BookingList bookings={bookings} onCancelBooking={cancelBookingHandler} />;
       }}
     </Query>
