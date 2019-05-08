@@ -1,7 +1,7 @@
 import { gql } from "apollo-boost";
 
 export const BOOK_EVENT = gql`
-  mutation BookEvent($id: ID!) {
+  mutation bookEvent($id: ID!) {
     bookEvent(eventId: $id) {
       _id
       createdAt
@@ -13,9 +13,9 @@ export const BOOK_EVENT = gql`
 export const GET_BOOKINGS = gql`
   query fetchBookings {
     bookings {
-      __typename
       _id
       createdAt
+      updatedAt
       event {
         _id
         title
@@ -28,11 +28,9 @@ export const GET_BOOKINGS = gql`
 export const GET_BOOKINGS_CACHED = gql`
   query getCachedBookings {
     bookings @client {
-      __typename
       _id
       createdAt
       event @client {
-        __typename
         _id
         title
         date

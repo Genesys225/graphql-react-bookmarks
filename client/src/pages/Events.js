@@ -8,7 +8,8 @@ import {
   SELECT_EVENT,
   GET_BOOKINGS_CACHED,
   FETCH_EVENTS_CACHED,
-  CREATE_EVENT_MODAL
+  CREATE_EVENT_MODAL,
+  GET_BOOKINGS
 } from "../Gql";
 
 import Modal from "../components/Modal/Modal";
@@ -64,7 +65,7 @@ const EventsPage = props => {
     const { events } = await client.readQuery({ query: FETCH_EVENTS_CACHED });
     console.log(createEvent);
     events.push({ ...createEvent, _id: auth.userId });
-    client.writeData({ data: { events } });
+    // client.writeData({ data: { events:{events} } });
     console.log(client.cache);
     openCreateEventModal(false);
   };
@@ -123,21 +124,30 @@ const EventsPage = props => {
           return selectedEvent ? (
             <Mutation mutation={BOOK_EVENT}>
               {(bookEvent, { loading }) => {
-                const bookEventHandler = () => {
+                const bookEventHandler = async () => {
                   if (!auth.token) {
                     setSelectedEvent(null);
                     return;
                   }
-                  bookEvent({
+                  console.log(client.cache.data.data);
+                  let { bookings: cachedBookings } = client.readQuery({
+                    query: GET_BOOKINGS_CACHED
+                  });
+                  cachedBookings.length < 1 &&
+                    ({
+                      data: { bookings: cachedBookings }
+                    } = await client.query({ query: GET_BOOKINGS }));
+                  await bookEvent({
                     variables: {
                       id: selectedEvent._id
                     },
                     update: (client, { data: { bookEvent: newBooking } }) => {
-                      const { bookings: cachedBookings } = client.readQuery({
-                        query: GET_BOOKINGS_CACHED
+                      newBooking.event = selectedEvent._id;
+                      cachedBookings.push(newBooking);
+                      console.log(selectedEvent, newBooking, cachedBookings);
+                      client.writeData({
+                        data: { bookings: cachedBookings }
                       });
-                      newBooking.event = { ...selectedEvent };
-                      client.writeData({ data: { bookings: cachedBookings.push(newBooking) } });
                     }
                   });
                   setSelectedEvent(null);

@@ -1,6 +1,6 @@
 {
   "env": {
-    "MONGO_URI": "mongodb://ds123783.mlab.com:23783/mqttdb",
-    "LOCAL-MONGO": "mongodb://localhost:27017/graphql-bookmarks"
+    "MONGO_URI": "mongodb://booby:xxx123456@ds123783.mlab.com:23783/mqttdb",
+    "LOCAL_MONGO": "mongodb://localhost:27017/graphql-bookmarks"
   }
 }

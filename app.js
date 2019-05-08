@@ -22,8 +22,9 @@ const server = new ApolloServer({ typeDefs: schema, resolvers, context: ({ req }
 server.applyMiddleware({ app, path: "/graphql" });
 
 mongoose
-  .connect(process.env.MONGO_URI, {user:""genesys225",pass:"Mlab_pa555, useNewUrlParser: true})
+  .connect(process.env.MONGO_URI, { useNewUrlParser: true })
   .then(() => {
+    console.log("mongo's up");
     app.listen(5000);
   })
   .catch(err => {

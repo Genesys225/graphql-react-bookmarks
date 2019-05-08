@@ -1,6 +1,7 @@
 import { GET_BOOKINGS, GET_BOOKINGS_CACHED } from "../";
 
-export default (operation, client) => {
+export default async (operation, client) => {
+  let firstBookingsRead = true;
   switch (operation.operationName) {
     case "CancelBooking":
       const { id: cancelededBookingId } = operation.variables;
@@ -10,24 +11,31 @@ export default (operation, client) => {
         data: { bookings: updatedBookings }
       });
       break;
-    case "BookEvent":
-      if (!client.cache.data.bookings) {
-        client.writeData({
-          data: {
-            bookings: client.query({ query: GET_BOOKINGS })
-          }
-        });
-        if (!client.cache.data.bookings)
-          client.writeData({
-            data: {
-              bookings: []
-            }
-          });
-      }
-      // const { id: bookedEventID } = operation.variables;
-      console.log(operation);
+    case "getCachedBookings":
+      firstBookingsRead && (await client.query({ query: GET_BOOKINGS }));
+      console.log(firstBookingsRead);
+      firstBookingsRead = false;
       break;
+    case "bookEvent":
+      // firstBookingsRead && (await client.query({ query: GET_BOOKINGS }));
+      firstBookingsRead = false;
+      break;
+    case "fetchBookings":
+      firstBookingsRead = false;
+      break;
+    // case "fetchBookings":
+    //   cachedBookings = client.readQuery({ query: GET_BOOKINGS_CACHED });
+    //   console.log(cachedBookings);
+    //   !cachedBookings &&
+    //     client.writeData({
+    //       data: {
+    //         bookings: []
+    //       }
+    //     });
+    //   // const { id: bookedEventID } = operation.variables;
+    // break;
     default:
+      console.log(operation);
   }
 
   operation.setContext({

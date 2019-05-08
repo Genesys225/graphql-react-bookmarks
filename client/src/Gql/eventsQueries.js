@@ -21,7 +21,6 @@ export const CREATE_EVENT = gql`
 export const FETCH_EVENTS = gql`
   query fetchEvents {
     events {
-      __typename
       _id
       title
       description
@@ -38,7 +37,6 @@ export const FETCH_EVENTS = gql`
 export const SELECT_EVENT = gql`
   query selectedEvent {
     selectedEvent @client {
-      __typename
       date
       price
       title
@@ -51,7 +49,6 @@ export const SELECT_EVENT = gql`
 export const FETCH_EVENTS_CACHED = gql`
   query GetCahedEvents {
     events @client {
-      __typename
       _id
       title
       description

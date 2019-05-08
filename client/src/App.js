@@ -54,6 +54,7 @@ function App() {
     },
     clientState: {
       defaults: {
+        bookings: [],
         createEventModal: false,
         eventDetailsModal: false,
         selectedEvent: null
