@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { LOGIN, SIGN_UP } from "../Gql/queries/";
 import { useApolloClient, useMutation } from "react-apollo-hooks";
+import Form, { FormField } from "../components/Form/Form";
 
 import "./Auth.css";
-import Form, { FormField as newFormField } from "../components/Form/Form";
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
-
   const client = useApolloClient();
   const signUpReq = useMutation(SIGN_UP, {
     fetchPolicy: "no-cache"
@@ -19,8 +18,6 @@ const AuthPage = () => {
   };
 
   const submitHandler = async ({ email, password }) => {
-    console.log(email, password);
-
     if (isLogin) {
       const {
         data: {
@@ -53,13 +50,13 @@ const AuthPage = () => {
       <Form
         submitForm={submitHandler}
         canConfirm
-        canAlternative
+        canAltAction
         altAction={switchModeHandler}
-        confirmBtnText={isLogin ? "Sign up" : "Login"}
+        confirmBtnText={!isLogin ? "Sign up" : "Login"}
         altBtnText={`Switch to ${isLogin ? "Sign up" : "Login"}`}
       >
-        <newFormField>Email</newFormField>
-        <newFormField minLength="5">Password</newFormField>
+        <FormField>Email</FormField>
+        <FormField minLength="5">Password</FormField>
       </Form>
     </>
   );

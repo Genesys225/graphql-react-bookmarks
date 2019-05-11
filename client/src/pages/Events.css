@@ -6,12 +6,3 @@
   width: 30rem;
   max-width: 80%;
 }
-div.validationError {
-  color: red;
-  font-size: 0.8rem;
-  display: inline;
-}
-
-.submitButtonHide {
-  display: none;
-}

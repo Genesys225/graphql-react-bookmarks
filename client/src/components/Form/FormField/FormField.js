@@ -28,7 +28,7 @@ export const FormField = props => {
         <div className={error && firstBlur ? "validationError" : "validationPassed"}>{error}</div>
       </label>
       <input
-        type={camelName}
+        type={props.type ? props.type : "text"}
         id={camelName}
         onBlur={({ target }) => blurEventHandler(target)}
         onChange={({ target }) => changeEventHandler(target)}
