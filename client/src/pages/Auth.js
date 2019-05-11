@@ -1,63 +1,67 @@
-import React, { useRef, useState, useContext } from "react";
-import { withApollo } from "react-apollo";
-import { LOGIN, SIGN_UP } from "../Gql/authQueries";
+import React, { useState } from "react";
+import { LOGIN, SIGN_UP } from "../Gql/queries/";
+import { useApolloClient, useMutation } from "react-apollo-hooks";
 
 import "./Auth.css";
-import AuthContext from "../context/auth-context";
+import Form, { FormField as newFormField } from "../components/Form/Form";
 
-const AuthPage = props => {
-  const auth = useContext(AuthContext);
-  const emailEl = useRef(null);
-  const passwordEl = useRef(null);
+const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
+
+  const client = useApolloClient();
+  const signUpReq = useMutation(SIGN_UP, {
+    fetchPolicy: "no-cache"
+  });
 
   const switchModeHandler = () => {
     const prevState = isLogin;
     setIsLogin(!prevState);
   };
 
-  const submitHandler = async event => {
-    event.preventDefault();
-    const email = emailEl.current.value;
-    const password = passwordEl.current.value;
+  const submitHandler = async ({ email, password }) => {
+    console.log(email, password);
 
-    if (email.trim().length === 0 || password.trim().length === 0) return;
-
-    const loginData = await props.client.query({
-      query: isLogin ? LOGIN : SIGN_UP,
-      variables: {
-        email,
-        password
-      },
-      fetchPolicy: "no-cache"
-    });
-
-    const { token, userId, tokenExpiration } = loginData.data.login;
-    if (token) {
-      auth.login(token, userId, tokenExpiration);
-    }
+    if (isLogin) {
+      const {
+        data: {
+          login: { token, userId, tokenExpiration }
+        }
+      } = await client.query({
+        query: LOGIN,
+        variables: {
+          email,
+          password
+        },
+        fetchPolicy: "no-cache"
+      });
+      console.log(token, userId);
+      if (token) {
+        client.writeData({ data: { token, userId } });
+      }
+    } else
+      signUpReq({
+        variables: {
+          email,
+          password
+        }
+      });
   };
 
   return (
     <>
       <h1>{isLogin ? "Login" : "Sign up"} Page</h1>
-      <form className="auth-form" onSubmit={submitHandler}>
-        <div className="form-control">
-          <label htmlFor="email">Email</label>
-          <input type="email" id="email" ref={emailEl} />
-        </div>
-        <div className="form-control">
-          <label htmlFor="password">Password</label>
-          <input type="password" id="password" ref={passwordEl} />
-        </div>
-        <div className="form-actions">
-          <button type="submit">Submit</button>
-          <button type="button" onClick={switchModeHandler}>
-            Switch to {isLogin ? "Sign up" : "Login"}
-          </button>
-        </div>
-      </form>
+      <Form
+        submitForm={submitHandler}
+        canConfirm
+        canAlternative
+        altAction={switchModeHandler}
+        confirmBtnText={isLogin ? "Sign up" : "Login"}
+        altBtnText={`Switch to ${isLogin ? "Sign up" : "Login"}`}
+      >
+        <newFormField>Email</newFormField>
+        <newFormField minLength="5">Password</newFormField>
+      </Form>
     </>
   );
 };
-export default withApollo(AuthPage);
+export default AuthPage;

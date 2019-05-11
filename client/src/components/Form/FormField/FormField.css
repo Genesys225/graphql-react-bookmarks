@@ -1,0 +1,28 @@
+.form-control label,
+.form-control textarea,
+.form-control input {
+  width: 100%;
+  display: block;
+}
+
+.form-control label {
+  margin-bottom: 0.5rem;
+}
+
+.form-control {
+  margin-bottom: 1rem;
+}
+
+div.validationError {
+  color: red;
+  font-size: 0.8rem;
+  display: inline;
+}
+
+div.validationPassed {
+  display: none;
+}
+
+.submitButtonHide {
+  display: none;
+}

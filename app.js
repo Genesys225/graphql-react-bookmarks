@@ -17,7 +17,14 @@ app.use(manageHeaders);
 
 app.use(verifyJwt);
 
-const server = new ApolloServer({ typeDefs: schema, resolvers, context: ({ req }) => req });
+const server = new ApolloServer({
+  typeDefs: schema,
+  resolvers,
+  context: ({ req }) => {
+    console.log(req.body);
+    return req;
+  }
+});
 
 server.applyMiddleware({ app, path: "/graphql" });
 

@@ -2,6 +2,6 @@ import React from "react";
 
 import "./Backdrop.css";
 
-const backdrop = props => <div className="backdrop" />;
+const Backdrop = props => <div className="backdrop" />;
 
-export default backdrop;
+export default Backdrop;

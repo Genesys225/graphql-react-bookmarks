@@ -1,33 +1,36 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Spinner from "../components/Spinner/Spinner";
 import BookingList from "../components/BookingList/BookingList";
-import { Query, Mutation } from "react-apollo";
-import { GET_BOOKINGS, CANCEL_BOOKING } from "../Gql";
+import { CANCEL_BOOKING, GET_BOOKINGS } from "../Gql/queries";
+import { useQuery, useMutation } from "react-apollo-hooks";
 
-const BookingsPage = () => {
-  return (
-    <Mutation mutation={CANCEL_BOOKING}>
-      {cancelBooking => {
-        const cancelBookingHandler = bookingId => {
-          cancelBooking({
-            mutation: CANCEL_BOOKING,
-            variables: {
-              id: bookingId
-            }
-          });
-        };
-        return (
-          <Query query={GET_BOOKINGS}>
-            {({ data, loading, client }) => {
-              if (loading) return <Spinner />;
-              const { bookings } = data;
-              return <BookingList bookings={bookings} onCancelBooking={cancelBookingHandler} />;
-            }}
-          </Query>
-        );
-      }}
-    </Mutation>
-  );
-};
+export default function BookingsPage() {
+  const {
+    data: { bookings },
+    loading,
+    refetch
+  } = useQuery(GET_BOOKINGS, { suspend: false });
 
-export default BookingsPage;
+  useEffect(() => {
+    if ((!bookings || bookings.length < 1) && !loading) {
+      refetch();
+    }
+  }, []);
+
+  const cancelBooking = useMutation(CANCEL_BOOKING, {
+    suspend: false
+  });
+
+  const cancelBookingHandler = bookingIdParam => {
+    cancelBooking({
+      variables: {
+        id: bookingIdParam
+      }
+    });
+  };
+
+  if (loading) return <Spinner />;
+  if ((!bookings || bookings.length < 1) && !loading) return null;
+
+  return <BookingList bookings={bookings} onCancelBooking={cancelBookingHandler} />;
+}

@@ -1,6 +1,6 @@
 import { gql } from "apollo-boost";
 
-export const CREATE_EVENT = gql`
+const CREATE_EVENT = gql`
   mutation CreateEvent($title: String!, $description: String!, $price: Float!, $date: String!) {
     createEvent(
       eventInput: { title: $title, description: $description, price: $price, date: $date }
@@ -10,15 +10,17 @@ export const CREATE_EVENT = gql`
       description
       date
       price
+      __typename
       creator {
         _id
         email
+        __typename
       }
     }
   }
 `;
 
-export const FETCH_EVENTS = gql`
+const FETCH_EVENTS = gql`
   query fetchEvents {
     events {
       _id
@@ -26,15 +28,17 @@ export const FETCH_EVENTS = gql`
       description
       date
       price
+      __typename
       creator {
         _id
         email
+        __typename
       }
     }
   }
 `;
 
-export const SELECT_EVENT = gql`
+const SELECTED_EVENT = gql`
   query selectedEvent {
     selectedEvent @client {
       date
@@ -42,11 +46,12 @@ export const SELECT_EVENT = gql`
       title
       description
       _id
+      __typename
     }
   }
 `;
 
-export const FETCH_EVENTS_CACHED = gql`
+const FETCH_EVENTS_CACHED = gql`
   query GetCahedEvents {
     events @client {
       _id
@@ -54,10 +59,14 @@ export const FETCH_EVENTS_CACHED = gql`
       description
       date
       price
-      creator {
+      __typename
+      creator @client {
         _id
         email
+        __typename
       }
     }
   }
 `;
+
+export { CREATE_EVENT, FETCH_EVENTS, SELECTED_EVENT, FETCH_EVENTS_CACHED };
