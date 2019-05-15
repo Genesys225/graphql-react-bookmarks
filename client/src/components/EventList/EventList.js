@@ -6,13 +6,13 @@ import "./EventItem.css";
 const eventList = props => {
   const events = props.events.map(event => (
     <EventItem
-      key={event._id}
-      eventId={event._id}
+      key={event.id}
+      eventId={event.id}
       title={event.title}
       price={event.price}
       date={event.date}
       userId={props.authUserId}
-      creatorId={event.creator._id}
+      creatorId={event.creator.id}
       onDetail={props.onEventDetail}
     />
   ));

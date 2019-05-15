@@ -2,7 +2,7 @@ const { gql } = require("apollo-server-express");
 
 const schema = gql`
   type Booking {
-    _id: ID!
+    id: ID!
     event: Event!
     user: User!
     createdAt: String!
@@ -10,7 +10,7 @@ const schema = gql`
   }
 
   type Event {
-    _id: ID!
+    id: ID!
     title: String!
     description: String!
     price: Float!
@@ -19,7 +19,7 @@ const schema = gql`
   }
 
   type User {
-    _id: ID!
+    id: ID!
     email: String!
     password: String
     createdEvents: [Event!]

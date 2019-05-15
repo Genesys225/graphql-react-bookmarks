@@ -1,7 +1,7 @@
 import React from "react";
 import { useQuery, useApolloClient } from "react-apollo-hooks";
 
-import { FETCH_EVENTS, GET_USERID } from "../Gql/queries";
+import { FETCH_EVENTS, GET_USERID, SET_SELECTED_EVENT } from "../Gql/queries";
 
 import EventList from "../components/EventList/EventList";
 import "./Events.css";
@@ -21,11 +21,8 @@ const EventsPage = () => {
     data: { userId }
   } = useQuery(GET_USERID);
 
-  const setSelectedEvent = data => client.writeData({ data: { selectedEvent: data } });
-
   const showDetailHandler = async eventId => {
-    const foundSelectedEvent = events.find(event => event._id === eventId);
-    setSelectedEvent(foundSelectedEvent);
+    client.mutate({ mutation: SET_SELECTED_EVENT, variables: { id: eventId } });
   };
 
   const RenderEventList = () => {

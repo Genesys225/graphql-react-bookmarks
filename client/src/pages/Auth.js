@@ -31,9 +31,9 @@ const AuthPage = () => {
         },
         fetchPolicy: "no-cache"
       });
-      console.log(token, userId);
+      console.log(tokenExpiration);
       if (token) {
-        client.writeData({ data: { token, userId } });
+        client.writeData({ data: { token, userId, tokenExpiration } });
       }
     } else
       signUpReq({

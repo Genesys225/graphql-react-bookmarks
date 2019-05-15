@@ -3,7 +3,7 @@ import { gql } from "apollo-boost";
 const BOOK_EVENT = gql`
   mutation bookEvent($id: ID!) {
     bookEvent(eventId: $id) {
-      _id
+      id
       createdAt
       updatedAt
       __typename
@@ -14,28 +14,12 @@ const BOOK_EVENT = gql`
 const GET_BOOKINGS = gql`
   query fetchBookings {
     bookings {
-      _id
+      id
       createdAt
       updatedAt
       __typename
       event {
-        _id
-        title
-        date
-        __typename
-      }
-    }
-  }
-`;
-
-const GET_BOOKINGS_CACHED = gql`
-  query getCachedBookings {
-    bookings @client {
-      _id
-      createdAt
-      __typename
-      event @client {
-        _id
+        id
         title
         date
         __typename
@@ -47,11 +31,11 @@ const GET_BOOKINGS_CACHED = gql`
 const CANCEL_BOOKING = gql`
   mutation CancelBooking($id: ID!) {
     cancelBooking(bookingId: $id) {
-      _id
+      id
       title
       __typename
     }
   }
 `;
 
-export { BOOK_EVENT, GET_BOOKINGS, GET_BOOKINGS_CACHED, CANCEL_BOOKING };
+export { BOOK_EVENT, GET_BOOKINGS, CANCEL_BOOKING };

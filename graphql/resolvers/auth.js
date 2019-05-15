@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const jwtDecode = require("../../utilities/utilities");
 
 const User = require("../../models/user");
 
@@ -21,7 +22,7 @@ module.exports = {
 
         const result = await user.save();
 
-        return { ...result._doc, _id: result.id };
+        return { ...result._doc, id: result.id };
       } catch (err) {
         throw err;
       }
@@ -31,14 +32,19 @@ module.exports = {
   RootQuery: {
     login: async (_, args) => {
       const { email, password } = args.userInput;
-      const user = await User.findOne({ email: email });
+      const user = await User.findOne({ email });
+
       if (!user) throw new Error("User does not exist!");
       const rightPassword = await bcrypt.compare(password, user.password);
       if (!rightPassword) throw new Error("Password is incorrect!");
+
       const token = jwt.sign({ userId: user.id, email: user.email }, "secret", {
         expiresIn: "1h"
       });
-      return { userId: user.id, token: token, tokenExpiration: 1 };
+      const {
+        payload: { exp: tokenExpiration }
+      } = jwtDecode(token);
+      return { userId: user.id, token: token, tokenExpiration: tokenExpiration };
     }
   }
 };

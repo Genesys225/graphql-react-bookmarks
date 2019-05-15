@@ -52,7 +52,7 @@ const user = async userId => {
   try {
     return {
       ...user._doc,
-      _id: user.id,
+      id: user._id,
       createdEvents: () => eventLoader.loadMany(user.createdEvents)
     };
   } catch (err) {
@@ -63,7 +63,7 @@ const user = async userId => {
 const normalizeEvent = event => {
   return {
     ...event._doc,
-    _id: event.id,
+    id: event._id,
     date: dateToString(event._doc.date),
     creator: user.bind(this, event.creator)
   };
@@ -72,7 +72,7 @@ const normalizeEvent = event => {
 const normalizeBooking = booking => {
   return {
     ...booking._doc,
-    _id: booking.id,
+    id: booking._id,
     user: user.bind(this, booking._doc.user),
     event: singleEvent.bind(this, booking._doc.event),
     createdAt: dateToString(booking._doc.createdAt),

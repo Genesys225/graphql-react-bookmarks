@@ -8,7 +8,6 @@ import Spinner from "../Spinner/Spinner";
 export default function BookEventComp() {
   const [loading, setLoading] = useState(false);
   const client = useApolloClient();
-
   const {
     data: { selectedEvent }
   } = useQuery(SELECTED_EVENT);
@@ -23,6 +22,7 @@ export default function BookEventComp() {
         query: GET_BOOKINGS_CACHED,
         data: { bookings: cachedBookings }
       });
+      // client.mutate({})
       setLoading(false);
       setSelectedEvent(null);
     }
@@ -38,7 +38,7 @@ export default function BookEventComp() {
     }
     bookEvent({
       variables: {
-        id: selectedEvent._id
+        id: selectedEvent.id
       }
     });
   };

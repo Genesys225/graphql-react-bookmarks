@@ -14,23 +14,11 @@ const LOGIN = gql`
 const SIGN_UP = gql`
   mutation SignUp($email: String!, $password: String!) {
     createUser(userInput: { email: $email, password: $password }) {
-      _id
+      id
       email
       __typename
     }
   }
 `;
 
-const GET_TOKEN = gql`
-  {
-    token
-  }
-`;
-
-const GET_USERID = gql`
-  {
-    userId
-  }
-`;
-
-export { LOGIN, SIGN_UP, GET_TOKEN, GET_USERID };
+export { LOGIN, SIGN_UP };

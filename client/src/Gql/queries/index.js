@@ -1,21 +1,8 @@
-import { LOGIN, SIGN_UP, GET_TOKEN, GET_USERID } from "./authQueries";
-import { BOOK_EVENT, GET_BOOKINGS, CANCEL_BOOKING, GET_BOOKINGS_CACHED } from "./bookingQueries";
-import { CREATE_EVENT, FETCH_EVENTS, SELECTED_EVENT, FETCH_EVENTS_CACHED } from "./eventsQueries";
-import { CREATE_EVENT_MODAL, EVENT_DETAILS_MODAL } from "./uiQueries";
+export * from "./serverQueries/authQueries";
+export * from "./serverQueries/bookingQueries";
+export * from "./serverQueries/eventsQueries";
 
-export {
-  LOGIN,
-  SIGN_UP,
-  GET_TOKEN,
-  GET_USERID,
-  BOOK_EVENT,
-  GET_BOOKINGS,
-  CANCEL_BOOKING,
-  GET_BOOKINGS_CACHED,
-  CREATE_EVENT,
-  FETCH_EVENTS,
-  SELECTED_EVENT,
-  FETCH_EVENTS_CACHED,
-  CREATE_EVENT_MODAL,
-  EVENT_DETAILS_MODAL
-};
+export * from "./clientQueries/authQueries";
+export * from "./clientQueries/bookingQueries";
+export * from "./clientQueries/eventsQueries";
+export * from "./clientQueries/uiQueries";

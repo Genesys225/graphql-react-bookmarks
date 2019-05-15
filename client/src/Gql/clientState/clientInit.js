@@ -4,25 +4,7 @@ import clientState from "./clientState";
 import { persistCache } from "apollo-cache-persist";
 import onError from "../errorHandaling";
 
-const cache = new InMemoryCache({
-  // dataIdFromObject: object => {
-  //   switch (object.__typename) {
-  //     case "bookEvent":
-  //       return "bookings";
-  //     case "User":
-  //       return "users";
-  //     case "Event":
-  //       return "events";
-  //     default:
-  //       return object.key;
-  //   }
-  // }
-  cacheRedirects: {
-    Query: {
-      bookings: (_, args, { getCacheKey }) => console.log(_, args)
-    }
-  }
-});
+const cache = new InMemoryCache();
 
 const initClient = async () => {
   const client = new ApolloClient({
@@ -31,15 +13,17 @@ const initClient = async () => {
     fetchOptions: {
       credentials: "include"
     },
-    clientState: { defaults: clientState.defaults },
     request: operation => networkMiddleware(operation, client),
-    onError
+    onError,
+    clientState
+    // cacheRedirects: ({})
   });
   await client.writeData({ data: clientState.defaults });
   await persistCache({
     cache: cache,
     storage: window.localStorage
   });
+  console.log(clientState);
   return client;
 };
 export default initClient;

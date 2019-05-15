@@ -7,7 +7,7 @@ export default async (operation, client) => {
     case "CancelBooking":
       const { id: canceledBookingId } = operation.variables;
       const { bookings } = client.readQuery({ query: GET_BOOKINGS_CACHED });
-      const updatedBookings = bookings.filter(booking => booking._id !== canceledBookingId);
+      const updatedBookings = bookings.filter(booking => booking.id !== canceledBookingId);
       client.writeData({
         data: { bookings: updatedBookings }
       });
@@ -36,7 +36,7 @@ export default async (operation, client) => {
     default:
       break;
   }
-  console.log(operation.operationName);
+  console.log(operation);
 
   const { token } = client.readQuery({ query: GET_TOKEN });
   operation.setContext({
