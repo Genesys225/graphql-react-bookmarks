@@ -21,7 +21,7 @@ const SELECTED_EVENT = gql`
 `;
 
 const SET_SELECTED_EVENT = gql`
-  mutation SetSelectedEvent($id: Int!) {
+  mutation SetSelectedEvent($id: ID!) {
     setSelectedEvent(id: $id) @client
   }
 `;

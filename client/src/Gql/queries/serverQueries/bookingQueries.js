@@ -1,4 +1,5 @@
 import { gql } from "apollo-boost";
+import { SINGLE_EVENT } from "../clientQueries/eventsQueries";
 
 const BOOK_EVENT = gql`
   mutation bookEvent($id: ID!) {

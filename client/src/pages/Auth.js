@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { LOGIN, SIGN_UP } from "../Gql/queries/";
 import { useApolloClient, useMutation } from "react-apollo-hooks";
 import Form, { FormField } from "../components/Form/Form";
 
+import authContext from "../context/authContext";
+
 import "./Auth.css";
 
-const AuthPage = () => {
+const AuthPage = props => {
+  const { setAutConextState } = useContext(authContext);
   const [isLogin, setIsLogin] = useState(true);
   const client = useApolloClient();
   const signUpReq = useMutation(SIGN_UP, {
@@ -34,6 +37,7 @@ const AuthPage = () => {
       console.log(tokenExpiration);
       if (token) {
         client.writeData({ data: { token, userId, tokenExpiration } });
+        setAutConextState({ token, userId, tokenExpiration });
       }
     } else
       signUpReq({

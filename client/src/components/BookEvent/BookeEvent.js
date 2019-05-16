@@ -1,37 +1,27 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import { useQuery, useMutation, useApolloClient } from "react-apollo-hooks";
 import Backdrop from "../Backdrop/Backdrop";
 import Modal from "../Modal/Modal";
-import { SELECTED_EVENT, BOOK_EVENT, GET_BOOKINGS_CACHED, GET_TOKEN } from "../../Gql/queries";
-import Spinner from "../Spinner/Spinner";
+import { SELECTED_EVENT, BOOK_EVENT, SET_USER_BOOKINGS } from "../../Gql/queries";
+import authContext from "../../context/authContext";
 
 export default function BookEventComp() {
-  const [loading, setLoading] = useState(false);
   const client = useApolloClient();
+  const { token } = useContext(authContext);
   const {
     data: { selectedEvent }
   } = useQuery(SELECTED_EVENT);
+
   const bookEvent = useMutation(BOOK_EVENT, {
-    update: (client, { data: { bookEvent: newBooking } }) => {
-      let { bookings: cachedBookings } = client.readQuery({
-        query: GET_BOOKINGS_CACHED
+    update: (_, { data: { bookEvent: newBooking } }) => {
+      client.mutate({
+        mutation: SET_USER_BOOKINGS,
+        variables: { selectedEvent, newBooking }
       });
-      newBooking.event = selectedEvent;
-      cachedBookings.push(newBooking);
-      client.writeQuery({
-        query: GET_BOOKINGS_CACHED,
-        data: { bookings: cachedBookings }
-      });
-      // client.mutate({})
-      setLoading(false);
-      setSelectedEvent(null);
     }
   });
 
   const bookEventHandler = () => {
-    setLoading(true);
-
-    const { token } = client.readQuery({ query: GET_TOKEN });
     if (!token) {
       setSelectedEvent(null);
       return;
@@ -41,10 +31,13 @@ export default function BookEventComp() {
         id: selectedEvent.id
       }
     });
+    setSelectedEvent(null);
   };
+
   const modalCancelHandler = () => {
     setSelectedEvent(null);
   };
+
   const setSelectedEvent = data => client.writeData({ data: { selectedEvent: data } });
 
   return (
@@ -60,16 +53,11 @@ export default function BookEventComp() {
           onConfirm={bookEventHandler}
           confirmText={"Book"}
         >
-          {loading && <Spinner />}
-          {!loading && (
-            <>
-              <h1>{selectedEvent.title}</h1>
-              <h2>
-                {selectedEvent.price} - {new Date(selectedEvent.date).toLocaleDateString("de-DE")}
-              </h2>
-              <p>{selectedEvent.description}</p>
-            </>
-          )}
+          <h1>{selectedEvent.title}</h1>
+          <h2>
+            {selectedEvent.price} - {new Date(selectedEvent.date).toLocaleDateString("de-DE")}
+          </h2>
+          <p>{selectedEvent.description}</p>
         </Modal>
       ) : null}
     </>

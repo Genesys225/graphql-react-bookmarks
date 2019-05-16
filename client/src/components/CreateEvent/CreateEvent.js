@@ -1,21 +1,14 @@
-import React from "react";
-import {
-  CREATE_EVENT_MODAL,
-  FETCH_EVENTS_CACHED,
-  CREATE_EVENT,
-  GET_TOKEN
-} from "../../Gql/queries";
+import React, { useContext } from "react";
+import { CREATE_EVENT_MODAL, FETCH_EVENTS_CACHED, CREATE_EVENT } from "../../Gql/queries";
 import { useQuery, useMutation, useApolloClient } from "react-apollo-hooks";
 import Modal from "../Modal/Modal";
 import Backdrop from "../Backdrop/Backdrop";
 import Form, { FormField } from "../Form/Form";
+import authContext from "../../context/authContext";
 
 export default function CreateEventComp() {
+  const { token } = useContext(authContext);
   const client = useApolloClient();
-
-  const {
-    data: { token }
-  } = useQuery(GET_TOKEN);
 
   const {
     data: { events }
