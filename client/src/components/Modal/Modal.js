@@ -1,30 +1,51 @@
 import React from "react";
+const Modal = props => {
+  const modalObj = window.$(`#${props.id}`);
 
-import "./Modal.css";
+  const showHide = state => {
+    modalObj.modal(`${state ? "show" : "hide"}`);
+  };
 
-const Modal = props => (
-  <>
-    {props.isOpen && (
-      <div className="modal">
-        <header className="modal__header">
-          <h1>{props.title}</h1>
-        </header>
-        <section className="modal__content">{props.children}</section>
-        <section className="modal__actions">
-          {props.canCancel && (
-            <button className="btn" onClick={props.onCancel}>
-              Cancel
-            </button>
-          )}
-          {props.canConfirm && (
-            <button className="btn" onClick={props.onConfirm}>
-              {props.confirmText}
-            </button>
-          )}
-        </section>
+  modalObj.on("hide.bs.modal", () => {
+    props.onCancel();
+  });
+
+  if (props.isOpen) showHide(true);
+  else showHide(false);
+
+  return (
+    <>
+      <div className={`modal fade`} id={props.id ? props.id : "defaultModal"} role="dialog">
+        <div className="modal-dialog modal-dialog-centered" role="document">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">{props.title}</h5>
+              <button type="button" className="close" aria-label="Close" onClick={props.onCancel}>
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div className="modal-body d-flex align-items-stretch flex-column">
+              {props.isOpen && props.children}
+            </div>
+            {(props.canCancel || props.canConfirm) && (
+              <div className="modal-footer mt-4">
+                {props.canCancel && (
+                  <button className="btn" onClick={props.onCancel}>
+                    Cancel
+                  </button>
+                )}
+                {props.canConfirm && (
+                  <button className="btn" onClick={props.onConfirm}>
+                    {props.confirmText}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-    )}
-  </>
-);
+    </>
+  );
+};
 
 export default Modal;

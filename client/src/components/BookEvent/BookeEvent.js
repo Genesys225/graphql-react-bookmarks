@@ -1,21 +1,23 @@
 import React, { useContext } from "react";
 import { useQuery, useMutation, useApolloClient } from "react-apollo-hooks";
-import Backdrop from "../Backdrop/Backdrop";
 import Modal from "../Modal/Modal";
 import { SELECTED_EVENT, BOOK_EVENT, SET_USER_BOOKINGS } from "../../Gql/queries";
 import authContext from "../../context/authContext";
 
 export default function BookEventComp() {
   const client = useApolloClient();
-  const { token } = useContext(authContext);
+  const {
+    auth: { token }
+  } = useContext(authContext);
   const {
     data: { selectedEvent }
   } = useQuery(SELECTED_EVENT);
 
+  const setUserBookings = useMutation(SET_USER_BOOKINGS);
+
   const bookEvent = useMutation(BOOK_EVENT, {
     update: (_, { data: { bookEvent: newBooking } }) => {
-      client.mutate({
-        mutation: SET_USER_BOOKINGS,
+      setUserBookings({
         variables: { selectedEvent, newBooking }
       });
     }
@@ -23,43 +25,38 @@ export default function BookEventComp() {
 
   const bookEventHandler = () => {
     if (!token) {
-      setSelectedEvent(null);
+      nullSelectedEvent();
       return;
     }
-    bookEvent({
-      variables: {
-        id: selectedEvent.id
-      }
-    });
-    setSelectedEvent(null);
+    const { id } = selectedEvent;
+    bookEvent({ variables: { id } });
+    nullSelectedEvent();
   };
 
-  const modalCancelHandler = () => {
-    setSelectedEvent(null);
-  };
+  const modalCancelHandler = () => nullSelectedEvent();
 
-  const setSelectedEvent = data => client.writeData({ data: { selectedEvent: data } });
+  const nullSelectedEvent = () => client.writeData({ data: { selectedEvent: null } });
 
   return (
-    <>
-      {selectedEvent && <Backdrop />}
-      {selectedEvent ? (
-        <Modal
-          isOpen={selectedEvent}
-          title={selectedEvent.title}
-          canCancel
-          canConfirm
-          onCancel={modalCancelHandler}
-          onConfirm={bookEventHandler}
-          confirmText={"Book"}
-        >
+    <Modal
+      id="bookEventModal"
+      isOpen={!!selectedEvent}
+      title={selectedEvent && selectedEvent.title}
+      canCancel
+      canConfirm
+      onCancel={modalCancelHandler}
+      onConfirm={bookEventHandler}
+      confirmText={"Book"}
+    >
+      {selectedEvent && (
+        <>
           <h1>{selectedEvent.title}</h1>
           <h2>
             {selectedEvent.price} - {new Date(selectedEvent.date).toLocaleDateString("de-DE")}
           </h2>
           <p>{selectedEvent.description}</p>
-        </Modal>
-      ) : null}
-    </>
+        </>
+      )}
+    </Modal>
   );
 }

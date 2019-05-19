@@ -1,7 +1,6 @@
-import { GET_BOOKINGS, GET_BOOKINGS_CACHED, GET_TOKEN, FETCH_EVENTS } from "../queries";
-
+import { GET_BOOKINGS, GET_BOOKINGS_CACHED, GET_AUTH_STATE } from "../queries";
+//this is where you would catch network requests before they lieve
 let firstBookingsRead = true;
-let firstEventsRead = true;
 export default async (operation, client) => {
   switch (operation.operationName) {
     case "CancelBooking":
@@ -23,14 +22,10 @@ export default async (operation, client) => {
       break;
 
     case "Login":
-      client.query({ query: FETCH_EVENTS, fetchPolicy: "network-only" });
       firstBookingsRead = true;
-      firstEventsRead = true;
-      console.log(firstEventsRead);
       break;
 
     case "fetchEvents":
-      firstEventsRead = false;
       break;
 
     default:
@@ -38,7 +33,9 @@ export default async (operation, client) => {
   }
   console.log(operation);
 
-  const { token } = client.readQuery({ query: GET_TOKEN });
+  const {
+    authState: { token }
+  } = client.readQuery({ query: GET_AUTH_STATE });
   operation.setContext({
     headers: {
       Authorization: "Bearer " + token

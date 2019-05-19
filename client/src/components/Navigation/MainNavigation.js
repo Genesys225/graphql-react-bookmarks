@@ -1,26 +1,17 @@
 import React, { useContext } from "react";
 import { NavLink } from "react-router-dom";
-import { useQuery, useApolloClient } from "react-apollo-hooks";
-import { GET_TOKEN } from "../../Gql/queries";
-import clientState from "../../Gql/clientState/clientState";
+import { useApolloClient } from "react-apollo-hooks";
 
 import "./MainNavigation.css";
 import RestartClientContext from "../../context/RestartClientContext";
+import authContext from "../../context/authContext";
 
 const MainNavigation = () => {
   const { restartClient } = useContext(RestartClientContext);
-  const client = useApolloClient();
   const {
-    data: { token }
-  } = useQuery(GET_TOKEN);
-
-  const logout = async () => {
-    await client.clearStore();
-    await window.localStorage.clear();
-    await client.writeData({ data: clientState.defaults });
-    restartClient();
-    await console.log(clientState.defaults, client.cache.data.data);
-  };
+    auth: { token, logout }
+  } = useContext(authContext);
+  const client = useApolloClient();
   return (
     <header className="main-navigation">
       <div className="main-navigation__logo" />
@@ -41,7 +32,7 @@ const MainNavigation = () => {
                 <NavLink to="/bookings">Bookings</NavLink>
               </li>
               <li>
-                <button onClick={logout}>Logout</button>
+                <button onClick={() => logout(client, restartClient)}>Logout</button>
               </li>
             </>
           )}

@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import Spinner from "../components/Spinner/Spinner";
 import BookingList from "../components/BookingList/BookingList";
 import { CANCEL_BOOKING, GET_BOOKINGS } from "../Gql/queries";
 import { useQuery, useMutation } from "react-apollo-hooks";
@@ -7,30 +6,24 @@ import { useQuery, useMutation } from "react-apollo-hooks";
 export default function BookingsPage() {
   const {
     data: { bookings },
-    loading,
     refetch
-  } = useQuery(GET_BOOKINGS, { suspend: false });
+  } = useQuery(GET_BOOKINGS);
 
   useEffect(() => {
-    if ((!bookings || bookings.length < 1) && !loading) {
+    if (!bookings || bookings.length < 1) {
       refetch();
     }
   }, []);
 
-  const cancelBooking = useMutation(CANCEL_BOOKING, {
-    suspend: false
-  });
+  const cancelBooking = useMutation(CANCEL_BOOKING);
 
-  const cancelBookingHandler = bookingIdParam => {
+  const cancelBookingHandler = bookingId => {
     cancelBooking({
       variables: {
-        id: bookingIdParam
+        id: bookingId
       }
     });
   };
-
-  if (loading) return <Spinner />;
-  if ((!bookings || bookings.length < 1) && !loading) return null;
 
   return <BookingList bookings={bookings} onCancelBooking={cancelBookingHandler} />;
 }

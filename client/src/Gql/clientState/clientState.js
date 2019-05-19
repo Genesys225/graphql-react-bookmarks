@@ -6,9 +6,13 @@ export default {
     selectedEvent: null,
     events: [],
     bookings: [],
-    token: null,
-    userId: null,
-    tokenExpiration: null
+    authState: {
+      token: null,
+      userId: null,
+      tokenExpiration: null,
+      __typename: "Auth",
+      id: 1
+    }
   },
   resolvers
 };

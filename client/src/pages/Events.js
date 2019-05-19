@@ -1,45 +1,38 @@
-import React from "react";
-import { useQuery, useApolloClient } from "react-apollo-hooks";
+import React, { useContext, lazy, Suspense } from "react";
+import { useQuery, useMutation } from "react-apollo-hooks";
 
-import { FETCH_EVENTS, GET_USERID, SET_SELECTED_EVENT } from "../Gql/queries";
+import authContext from "../context/authContext";
+import { FETCH_EVENTS, SET_SELECTED_EVENT } from "../Gql/queries";
 
-import EventList from "../components/EventList/EventList";
 import "./Events.css";
-import BookEventComp from "../components/BookEvent/BookeEvent";
-import CreateEventComp from "../components/CreateEvent/CreateEvent";
 import Spinner from "../components/Spinner/Spinner";
+const EventList = lazy(() => import("../components/EventList/EventList"));
+const BookEventComp = lazy(() => import("../components/BookEvent/BookeEvent"));
+const CreateEventComp = lazy(() => import("../components/CreateEvent/CreateEvent"));
 
-const EventsPage = props => {
-  const client = useApolloClient();
+const EventsPage = () => {
+  const { auth } = useContext(authContext);
   const {
     data: { events },
-    refetch,
-    loading
-  } = useQuery(FETCH_EVENTS, { suspend: false });
+    refetch
+  } = useQuery(FETCH_EVENTS);
 
-  const {
-    data: { userId }
-  } = useQuery(GET_USERID);
+  const setSelectedEvent = useMutation(SET_SELECTED_EVENT);
 
   const showDetailHandler = async eventId => {
-    client.mutate({ mutation: SET_SELECTED_EVENT, variables: { id: eventId } });
-  };
-  console.log(props);
-  const RenderEventList = () => {
-    if (!events || events.length < 1) {
-      refetch();
-      return null;
-    }
-    return <EventList onEventDetail={showDetailHandler} events={events} authUserId={userId} />;
+    setSelectedEvent({ variables: { id: eventId } });
+    window.$("#bookEventModal").modal("show");
   };
 
+  if (!events || events.length < 1) {
+    refetch();
+  }
   return (
-    <>
-      <CreateEventComp />
-      {loading && <Spinner />};
+    <Suspense fallback={<Spinner />}>
+      <CreateEventComp events={events} />
       <BookEventComp />
-      <RenderEventList />
-    </>
+      <EventList onEventDetail={showDetailHandler} events={events} authUserId={auth.userId} />
+    </Suspense>
   );
 };
 

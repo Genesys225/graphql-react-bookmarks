@@ -1,25 +1,23 @@
-import React, { Suspense } from "react";
+import React, { Suspense, lazy } from "react";
 import ReactDOM from "react-dom";
-import App from "./App";
 import { ApolloProvider as ApolloProviderHooks } from "react-apollo-hooks";
-
 import "./index.css";
 import initClient from "./Gql/clientState/clientInit";
 import Spinner from "./components/Spinner/Spinner";
 import RestartClientContext from "./context/RestartClientContext";
+const App = lazy(() => import("./App"));
 
 const setupAndRender = async () => {
   let client = await initClient();
   const restartClient = () => setupAndRender();
-  if (!client) ReactDOM.render(<Spinner />, document.getElementById("root"));
   ReactDOM.render(
-    <ApolloProviderHooks client={client}>
-      <RestartClientContext.Provider value={{ restartClient }}>
-        <Suspense fallback={<Spinner />}>
+    <Suspense fallback={<Spinner />}>
+      <ApolloProviderHooks client={client}>
+        <RestartClientContext.Provider value={{ restartClient }}>
           <App />
-        </Suspense>
-      </RestartClientContext.Provider>
-    </ApolloProviderHooks>,
+        </RestartClientContext.Provider>
+      </ApolloProviderHooks>
+    </Suspense>,
     document.getElementById("root")
   );
 };

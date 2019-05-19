@@ -1,23 +1,18 @@
-import React, { useContext } from "react";
-import { CREATE_EVENT_MODAL, FETCH_EVENTS_CACHED, CREATE_EVENT } from "../../Gql/queries";
-import { useQuery, useMutation, useApolloClient } from "react-apollo-hooks";
+import React, { useContext, useState } from "react";
+import { CREATE_EVENT } from "../../Gql/queries";
+import { useMutation } from "react-apollo-hooks";
 import Modal from "../Modal/Modal";
-import Backdrop from "../Backdrop/Backdrop";
 import Form, { FormField } from "../Form/Form";
 import authContext from "../../context/authContext";
 
-export default function CreateEventComp() {
-  const { token } = useContext(authContext);
-  const client = useApolloClient();
-
+export default function CreateEventComp(props) {
+  const [modalShow, setModalShow] = useState(false);
+  const { events } = props;
   const {
-    data: { events }
-  } = useQuery(FETCH_EVENTS_CACHED);
+    auth: { token } // user token retrieved from user-state context passed frop App.js
+  } = useContext(authContext);
 
-  const {
-    data: { createEventModal }
-  } = useQuery(CREATE_EVENT_MODAL);
-
+  // mutation fnction decliration for creating an event
   const createEventReq = useMutation(CREATE_EVENT, {
     update: (client, { data: { createEvent } }) => {
       events.push(createEvent);
@@ -26,44 +21,49 @@ export default function CreateEventComp() {
     }
   });
 
-  const openCreateEventModal = state =>
-    client.writeData({
-      data: { createEventModal: state }
-    });
+  // setting the modal show / hide
+  const openCreateEventModal = state => setModalShow(state);
 
-  const modalCancelHandler = () => openCreateEventModal(false);
-
-  const createEventHandler = async ({ title, price, date, description }) => {
+  // the actual call to the mutation function
+  // after getting the details from the form
+  const createEventHandler = async newEventDetails => {
     createEventReq({
       mutation: CREATE_EVENT,
-      variables: {
-        title,
-        description,
-        date,
-        price
-      }
+      variables: newEventDetails
     });
+    openCreateEventModal(false);
   };
 
   return (
     <>
-      {createEventModal && <Backdrop />}
-      <Modal isOpen={createEventModal} title="Add Event" canCancel={false} canConfirm={false}>
+      <Modal
+        isOpen={modalShow}
+        id={"createEventModal"}
+        title="Add Event"
+        canCancel={false}
+        canConfirm={false}
+        onCancel={() => openCreateEventModal(false)}
+      >
         <Form
+          className="create-event-form"
+          id="create-event-form"
           canAltAction
           canConfirm
           submitForm={createEventHandler}
-          altAction={modalCancelHandler}
+          altAction={() => openCreateEventModal(false)}
           confirmBtnText="Confirm"
           altBtnText="Cancel"
         >
           <FormField>Title</FormField>
           <FormField>Price</FormField>
           <FormField>Date</FormField>
-          <FormField>Description</FormField>
+          <FormField rows="3" minLength="2">
+            Description
+          </FormField>
         </Form>
       </Modal>
       {token && (
+        // create event button
         <div className="events-control">
           <p>Share your own Events!</p>
           <button className="btn" onClick={() => openCreateEventModal(true)}>
