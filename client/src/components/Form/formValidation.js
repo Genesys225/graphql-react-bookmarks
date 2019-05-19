@@ -2,20 +2,19 @@ export default function formValidation(inputsArr) {
   let errors;
   const validateSingle = input => {
     let error = { id: input.id };
+
     if (!input.validity.valid) {
       console.log(input.validationMessage, input.type);
-      if (input.validity.valueMissing)
-        input.setCustomValidity(`Please fill out the ${input.name} field.`);
       switch (input.type) {
         case "email":
           error.value = emailValidationHandler(input);
           break;
 
         default:
-          error.value = input.validationMessage;
+          error.value = defaultValidationHandler(input);
+
           break;
       }
-      // input.setCustomValidity(`Please fill out the ${input.name} field.`);
       return error;
     } else {
       error.value = false;
@@ -30,6 +29,7 @@ export default function formValidation(inputsArr) {
 }
 
 function validateEmail(email) {
+  // eslint-disable-next-line
   var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(String(email).toLowerCase());
 }
@@ -44,4 +44,13 @@ function emailValidationHandler(input) {
   else input.setCustomValidity("");
 
   return input.validationMessage;
+}
+
+function defaultValidationHandler(input) {
+  if (input.validity.valueMissing) {
+    input.setCustomValidity(`Please fill out the ${input.name} field.`);
+    const res = input.validationMessage;
+    input.setCustomValidity(``);
+    return res;
+  } else return input.validationMessage;
 }

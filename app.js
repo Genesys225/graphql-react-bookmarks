@@ -17,6 +17,8 @@ app.use(manageHeaders);
 
 app.use(verifyJwt);
 
+app.use(express.static(__dirname + "/client/build"));
+
 const server = new ApolloServer({
   typeDefs: schema,
   resolvers,

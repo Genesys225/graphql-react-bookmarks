@@ -43,14 +43,16 @@ export const FormField = props => {
   }
 
   return (
-    <div className="form-group">
+    <div className="form-group mb-3">
       <label htmlFor={camelName}>{props.children} </label>
       {props.rows ? (
         <textarea {...fieldAttributes} rows={props.rows} />
       ) : (
         <input {...fieldAttributes} />
       )}
-      <div className="invalid-feedback">{error}</div>
+      <div className="invalid-feedback m-0" style={{ height: "0px" }}>
+        {error}
+      </div>
     </div>
   );
 };

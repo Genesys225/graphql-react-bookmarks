@@ -13,6 +13,7 @@ export default function BookingsPage() {
     if (!bookings || bookings.length < 1) {
       refetch();
     }
+    // eslint-disable-next-line
   }, []);
 
   const cancelBooking = useMutation(CANCEL_BOOKING);

@@ -60,16 +60,18 @@ const Form = props => {
           field.props.children
         )
       )}
-      {props.canConfirm && (
-        <button type="submit" onClick={e => onConfirm(e)} className="btn form-actions">
-          {props.confirmBtnText}
-        </button>
-      )}
-      {props.canAltAction && (
-        <button type="button" onClick={e => onAltAction(e)} className="btn form-actions">
-          {props.altBtnText}
-        </button>
-      )}
+      <div className="form-actions mt-5">
+        {props.canConfirm && (
+          <button type="submit" onClick={onConfirm} className="btn">
+            {props.confirmBtnText}
+          </button>
+        )}
+        {props.canAltAction && (
+          <button type="button" onClick={onAltAction} className="btn">
+            {props.altBtnText}
+          </button>
+        )}
+      </div>
     </form>
   );
 };
