@@ -12,6 +12,10 @@ const cache = new InMemoryCache({
         return getCacheKey({ __typename: "Booking", id: args });
       }
     }
+  },
+  dataIdFromObject: object => {
+    console.log(object, object.id);
+    return object.id;
   }
 });
 

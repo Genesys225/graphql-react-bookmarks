@@ -16,10 +16,12 @@
     "body-parser": "^1.18.3",
     "dataloader": "^1.4.0",
     "express": "^4.16.4",
+    "express-router": "0.0.1",
     "graphql": "^0.13.2",
     "graphql-tools": "^4.0.4",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.5.2",
+    "multer": "^1.4.1",
     "nodemon": "^1.18.11"
   },
   "devDependencies": {

@@ -25,6 +25,7 @@ module.exports = (req, res, next) => {
   }
   req.isAuth = true;
   req.userId = decodedToken.userId;
+  req.base64Id = new Buffer(req.userId).toString("base64");
   console.log(req.userId);
   next();
 };
