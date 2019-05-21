@@ -1,4 +1,4 @@
-const DataLoader = require("dataLoader");
+const DataLoader = require("dataloader");
 const Event = require("../../models/event");
 const User = require("../../models/user");
 const { dateToString } = require("../../utilities/date");
