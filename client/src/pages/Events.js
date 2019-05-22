@@ -21,7 +21,6 @@ const EventsPage = () => {
 
   const showDetailHandler = async eventId => {
     setSelectedEvent({ variables: { id: eventId } });
-    window.$("#bookEventModal").modal("show");
   };
 
   if (!events || events.length < 1) {

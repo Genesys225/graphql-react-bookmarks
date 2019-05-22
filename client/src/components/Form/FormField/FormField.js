@@ -1,5 +1,6 @@
 import { camelize } from "../../../utils/utilities";
 import React, { useState } from "react";
+import FileInput from "./FileInput";
 
 export const FormField = props => {
   const [firstBlur, setfirstBlur] = useState(false);
@@ -42,17 +43,29 @@ export const FormField = props => {
     fieldAttributes.max = props.max ? props.max : null;
   }
 
+  let labelClass = null;
+  if (props.type === "file") labelClass = { className: "custom-file-label" };
+
   return (
     <div className="form-group mb-3">
-      <label htmlFor={camelName}>{props.children} </label>
-      {props.rows ? (
-        <textarea {...fieldAttributes} rows={props.rows} />
+      {props.type === "file" ? (
+        <FileInput {...fieldAttributes} />
       ) : (
-        <input {...fieldAttributes} />
+        <>
+          {" "}
+          <label htmlFor={camelName} {...labelClass}>
+            {props.children}{" "}
+          </label>
+          {props.rows ? (
+            <textarea {...fieldAttributes} rows={props.rows} />
+          ) : (
+            <input {...fieldAttributes} />
+          )}
+          <div className="invalid-feedback m-0" style={{ height: "0px" }}>
+            {error}
+          </div>{" "}
+        </>
       )}
-      <div className="invalid-feedback m-0" style={{ height: "0px" }}>
-        {error}
-      </div>
     </div>
   );
 };
@@ -65,5 +78,6 @@ const deduceType = title => {
   else if (lowerCaseTitle.includes("price")) return "number";
   else if (lowerCaseTitle.includes("phone")) return "tel";
   else if (lowerCaseTitle.includes("tel")) return "tel";
+  else if (lowerCaseTitle.includes("file")) return "file";
   else return "text";
 };

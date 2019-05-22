@@ -3,6 +3,7 @@ import { useQuery, useMutation, useApolloClient } from "react-apollo-hooks";
 import Modal from "../Modal/Modal";
 import { SELECTED_EVENT, BOOK_EVENT, SET_USER_BOOKINGS } from "../../Gql/queries";
 import authContext from "../../context/authContext";
+import Form, { FormField } from "../Form/Form";
 
 export default function BookEventComp() {
   const client = useApolloClient();
@@ -55,6 +56,9 @@ export default function BookEventComp() {
             {selectedEvent.price} - {new Date(selectedEvent.date).toLocaleDateString("de-DE")}
           </h2>
           <p>{selectedEvent.description}</p>
+          <Form>
+            <FormField type="file">File Upload</FormField>
+          </Form>
         </>
       )}
     </Modal>

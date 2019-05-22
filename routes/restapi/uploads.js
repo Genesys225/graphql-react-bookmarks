@@ -2,9 +2,17 @@ const express = require("express");
 const router = express.Router();
 const path = require("path");
 const multer = require("multer");
+var fs = require("fs");
 
 const storage = multer.diskStorage({
-  destination: "./client/public/uploads",
+  destination: function(req, file, cb) {
+    const witeDir = `./client/public/uploads/${file.fieldname}/${req.base64Id}/`;
+    if (!fs.existsSync(witeDir))
+      fs.mkdirSync(witeDir, {
+        recursive: true
+      });
+    cb(null, witeDir);
+  },
   filename: function(req, file, cb) {
     cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
   }
