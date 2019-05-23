@@ -1,20 +1,27 @@
-import React from "react";
+import React, { useState } from "react";
 
-const FileInput = props => {
-  console.log(props);
-  const newProps = {
-    ...props,
-    classname: `${props.className} custom-file-input`
-  };
+const FileInput = ({ fieldAttributes, parentProps }) => {
+  const [progress, setProgress] = useState();
+  console.log(fieldAttributes, parentProps);
+  const { title, error, camelName } = parentProps;
+
   return (
     <>
-      <div className="form-actions custom-file">
-        <input {...newProps} />
-        <label htmlFor="fileUpload" className="custom-file-label">
-          Somthing...........
+      <div className="form-actions custom-file mb-3">
+        <input {...fieldAttributes} />
+        <label htmlFor={camelName} className="custom-file-label">
+          {title}
         </label>
+        <div className="invalid-feedback m-0" style={{ height: "0px" }}>
+          {error}
+        </div>
+        <input
+          type="submit"
+          value="Upload"
+          className="btn btn-block mt-4"
+          onClick={parentProps.onConfirm}
+        />
       </div>
-      <input type="submit" value="Upload" className="btn btn-block mt-4" />
     </>
   );
 };

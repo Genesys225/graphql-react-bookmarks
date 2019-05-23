@@ -17,7 +17,7 @@ app.use(verifyJwt);
 app.use(express.static(__dirname + "/client/build"));
 app.use(express.static(__dirname + "/client/public"));
 
-app.use("/restapi/uploads", require("./routes/api/uploads"));
+app.use("/api/uploads", require("./routes/api/uploads"));
 
 server.applyMiddleware({ app, path: "/graphql" });
 

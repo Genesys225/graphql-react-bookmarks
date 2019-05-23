@@ -8,12 +8,12 @@ export const FormField = props => {
   const camelName = camelize(props.children.toString());
 
   const validate = target => {
+    // this only reurns errors if they are present else leaves error undefined
     const error = props.setFieldState(camelName, target);
     setError(error);
   };
 
   const changeEventHandler = ({ target }) => {
-    console.log(target.value);
     validate(target);
   };
 
@@ -24,7 +24,7 @@ export const FormField = props => {
 
   // const focusEventHandler = () => setfirstBlur(false);
 
-  const { children: title } = props;
+  const { children: title, type } = props;
 
   const fieldAttributes = {
     className: `form-control${error && firstBlur ? " is-invalid" : ""}`,
@@ -36,26 +36,32 @@ export const FormField = props => {
     required: true,
     minLength: props.minLength && props.minLength,
     maxLength: props.maxLength && props.maxLength,
-    type: props.type ? props.type : deduceType(title)
+    type: type ? type : deduceType(title)
   };
   if (fieldAttributes.type === "number" || "range") {
     fieldAttributes.min = props.min ? props.min : 0;
     fieldAttributes.max = props.max ? props.max : null;
   }
 
-  let labelClass = null;
-  if (props.type === "file") labelClass = { className: "custom-file-label" };
+  switch (fieldAttributes.type) {
+    case "file":
+      return (
+        <FileInput
+          fieldAttributes={fieldAttributes}
+          parentProps={{
+            title,
+            error,
+            camelName,
+            onConfirm: props.onConfirm,
+            onUploadProgress: props.onUploadProgress
+          }}
+        />
+      );
 
-  return (
-    <div className="form-group mb-3">
-      {props.type === "file" ? (
-        <FileInput {...fieldAttributes} />
-      ) : (
-        <>
-          {" "}
-          <label htmlFor={camelName} {...labelClass}>
-            {props.children}{" "}
-          </label>
+    default:
+      return (
+        <div className="form-group mb-3">
+          <label htmlFor={camelName}>{title}</label>
           {props.rows ? (
             <textarea {...fieldAttributes} rows={props.rows} />
           ) : (
@@ -63,11 +69,10 @@ export const FormField = props => {
           )}
           <div className="invalid-feedback m-0" style={{ height: "0px" }}>
             {error}
-          </div>{" "}
-        </>
-      )}
-    </div>
-  );
+          </div>
+        </div>
+      );
+  }
 };
 
 const deduceType = title => {

@@ -10,9 +10,12 @@ export default function formValidation(inputsArr) {
           error.value = emailValidationHandler(input);
           break;
 
+        case "file":
+          error.value = input.validationMessage;
+          break;
+
         default:
           error.value = defaultValidationHandler(input);
-
           break;
       }
       return error;

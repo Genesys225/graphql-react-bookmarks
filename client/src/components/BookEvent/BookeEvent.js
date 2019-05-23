@@ -4,6 +4,7 @@ import Modal from "../Modal/Modal";
 import { SELECTED_EVENT, BOOK_EVENT, SET_USER_BOOKINGS } from "../../Gql/queries";
 import authContext from "../../context/authContext";
 import Form, { FormField } from "../Form/Form";
+import axios from "axios";
 
 export default function BookEventComp() {
   const client = useApolloClient();
@@ -34,6 +35,21 @@ export default function BookEventComp() {
     nullSelectedEvent();
   };
 
+  const uploadFile = async ({ fileUpload },onUploadProgress) => {
+    const formData = new FormData();
+    formData.append("fileUpload", fileUpload);
+    try {
+      const res = await axios.post("http://localhost:5000/api/uploads", formData, {
+        headers: {
+          "Content-Type": "multipart/form-date",
+          Authorization: `Bearer ${token}`
+        },
+        onUploadProgress: ProgressEvent => onUploadProgress()
+      });
+      console.log(res.data);
+    } catch (error) {}
+  };
+
   const modalCancelHandler = () => nullSelectedEvent();
 
   const nullSelectedEvent = () => client.writeData({ data: { selectedEvent: null } });
@@ -56,9 +72,11 @@ export default function BookEventComp() {
             {selectedEvent.price} - {new Date(selectedEvent.date).toLocaleDateString("de-DE")}
           </h2>
           <p>{selectedEvent.description}</p>
-          <Form>
-            <FormField type="file">File Upload</FormField>
-          </Form>
+          <div>
+            <Form canAltAction={false} canConfirm={false} submitForm={uploadFile}>
+              <FormField progress={}>File Upload</FormField>
+            </Form>
+          </div>
         </>
       )}
     </Modal>

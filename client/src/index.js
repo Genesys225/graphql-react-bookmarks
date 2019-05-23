@@ -11,13 +11,15 @@ const setupAndRender = async () => {
   let client = await initClient();
   const restartClient = () => setupAndRender();
   ReactDOM.render(
-    <Suspense fallback={<Spinner />}>
-      <ApolloProviderHooks client={client}>
-        <RestartClientContext.Provider value={{ restartClient }}>
-          <App />
-        </RestartClientContext.Provider>
-      </ApolloProviderHooks>
-    </Suspense>,
+    <React.StrictMode>
+      <Suspense fallback={<Spinner />}>
+        <ApolloProviderHooks client={client}>
+          <RestartClientContext.Provider value={{ restartClient }}>
+            <App />
+          </RestartClientContext.Provider>
+        </ApolloProviderHooks>
+      </Suspense>
+    </React.StrictMode>,
     document.getElementById("root")
   );
 };
