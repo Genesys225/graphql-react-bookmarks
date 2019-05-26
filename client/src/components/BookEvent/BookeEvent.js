@@ -35,18 +35,21 @@ export default function BookEventComp() {
     nullSelectedEvent();
   };
 
-  const uploadFile = async ({ fileUpload },onUploadProgress) => {
-    const formData = new FormData();
-    formData.append("fileUpload", fileUpload);
+  const uploadFile = ({ fileUpload }, setProgress) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/uploads", formData, {
-        headers: {
-          "Content-Type": "multipart/form-date",
-          Authorization: `Bearer ${token}`
-        },
-        onUploadProgress: ProgressEvent => onUploadProgress()
+      fileUpload.forEach(async file => {
+        const formData = new FormData();
+        formData.append("fileUpload", file);
+        const res = await axios.post("http://localhost:5000/api/uploads", formData, {
+          headers: {
+            "Content-Type": "multipart/form-date",
+            Authorization: `Bearer ${token}`
+          },
+          onUploadProgress: ProgressEvent =>
+            setProgress(Math.trunc((ProgressEvent.loaded / ProgressEvent.total) * 100))
+        });
+        console.log(res.data);
       });
-      console.log(res.data);
     } catch (error) {}
   };
 
@@ -74,7 +77,7 @@ export default function BookEventComp() {
           <p>{selectedEvent.description}</p>
           <div>
             <Form canAltAction={false} canConfirm={false} submitForm={uploadFile}>
-              <FormField progress={}>File Upload</FormField>
+              <FormField>File Upload</FormField>
             </Form>
           </div>
         </>

@@ -7,17 +7,22 @@ export const FormField = props => {
   const [error, setError] = useState(false);
   const camelName = camelize(props.children.toString());
 
-  const validate = target => {
+  const validate = (target, files) => {
+    let error;
+    target.type === "file" && (error = props.setFieldState(camelName, target, files));
     // this only reurns errors if they are present else leaves error undefined
-    const error = props.setFieldState(camelName, target);
+    error = props.setFieldState(camelName, target);
     setError(error);
   };
 
-  const changeEventHandler = ({ target }) => {
+  const changeEventHandler = ({ target }, files) => {
+    console.log(files, target);
+    target.type === "file" && validate(target, files);
     validate(target);
   };
 
   const blurEventHandler = ({ target }) => {
+    console.log(target);
     setfirstBlur(true);
     validate(target);
   };
@@ -45,6 +50,7 @@ export const FormField = props => {
 
   switch (fieldAttributes.type) {
     case "file":
+      fieldAttributes.className = `${fieldAttributes.className} mb-1`;
       return (
         <FileInput
           fieldAttributes={fieldAttributes}
@@ -52,8 +58,7 @@ export const FormField = props => {
             title,
             error,
             camelName,
-            onConfirm: props.onConfirm,
-            onUploadProgress: props.onUploadProgress
+            onConfirm: props.onConfirm
           }}
         />
       );

@@ -1,17 +1,26 @@
-export default function formValidation(inputsArr) {
+export default function formValidation(inputsArr, files) {
   let errors;
   const validateSingle = input => {
+    console.log(files);
     let error = { id: input.id };
-
-    if (!input.validity.valid) {
-      console.log(input.validationMessage, input.type);
+    if (files) {
+      if (files.length > 0) {
+        console.log(input.validationMessage, input, error);
+        error.value = false;
+        return error;
+      } else {
+        error.value = input.validationMessage;
+        return error;
+      }
+    } else if (!input.validity.valid) {
       switch (input.type) {
         case "email":
           error.value = emailValidationHandler(input);
           break;
 
         case "file":
-          error.value = input.validationMessage;
+          if (input.Files && input.Files.length > 0) error.value = false;
+          else error.value = input.validationMessage;
           break;
 
         default:
@@ -41,8 +50,9 @@ function emailValidationHandler(input) {
   const customValidationRes = validateEmail(input.value);
   if (input.validity.valueMissing)
     input.setCustomValidity(`Please fill out the ${input.name} field.`);
-  // else if (input.validity.typeMismatch) input.setCustomValidity(``);
+  else if (input.validity.typeMismatch) input.setCustomValidity(``);
   else if (!customValidationRes)
+    // this is overulled by the typeMismatch check
     input.setCustomValidity(`Email should be of pattern someone@somewhere.something.`);
   else input.setCustomValidity("");
 

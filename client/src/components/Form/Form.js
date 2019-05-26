@@ -14,10 +14,11 @@ const Form = props => {
     toInitialStateObj(childrenFields.map(childField => camelize(childField.props.children)))
   );
   // setting the field state function, it is passed to the fields components to be used there
-  const setFieldState = (fieldName, fieldTarget) => {
+  const setFieldState = (fieldName, fieldTarget, files) => {
+    console.log(fieldTarget, files);
     const prevState = inputValues;
     // this is the validation step, it returns an error object or false
-    const error = formValidation(fieldTarget);
+    const error = formValidation(fieldTarget, files);
     if (error) {
       // this is to allow fake submittion, in order to triger HTML5 validation message
       setInputValues({ ...prevState, [fieldName]: null });
@@ -34,22 +35,21 @@ const Form = props => {
       });
     // sets file inputs
     else if (fieldTarget.type === "file") {
-      let files = fieldTarget.files;
-      if (fieldTarget.files.length === 1) files = fieldTarget.files[0];
-      console.log(files);
-      setInputValues({
-        ...prevState,
-        [fieldName]: files
-      });
+      if (files && files.length > 0)
+        setInputValues({
+          ...prevState,
+          [fieldName]: files
+        });
     }
     // this is the actual state set
     else setInputValues({ ...prevState, [fieldName]: fieldTarget.value });
   };
 
-  const onConfirm = e => {
+  const onConfirm = (e, setProgress) => {
+    console.log(inputValues);
     if (!formErrors) {
       e.preventDefault();
-      props.submitForm(inputValues);
+      props.submitForm(inputValues, setProgress);
     } else return;
   };
 
