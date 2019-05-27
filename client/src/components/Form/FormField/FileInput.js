@@ -9,24 +9,25 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
   const { getRootProps, getInputProps, open, inputRef } = useDropzone({
     accept: "image/*",
     onDrop: acceptedFiles => {
-      setFiles([
+      const updatedFileList = [
         ...files,
         ...acceptedFiles.map(file => {
           return Object.assign(file, {
             preview: URL.createObjectURL(file)
           });
         })
-      ]);
+      ];
+      // passing the dropzone chnage event to the form framework to validate and store
+      fieldAttributes.onChange({ target: inputRef.current }, updatedFileList);
+      setFiles(updatedFileList);
+      return;
     },
     noClick: true,
     noKeyboard: true
   });
 
-  const handleChange = async (e, files) => {
-    // allowing the original dropzone onCange handler to fire
-    const temp = await getInputProps().onChange(e);
-    console.log(temp, files);
-    // passing the dropzone chnage event to the form framework to validate and store
+  const handleChange = e => {
+    getInputProps().onChange(e);
   };
 
   // extending the form framework functinality with dropzone's features
@@ -34,14 +35,13 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
   delete mergedAttributes.style;
 
   const handleUpload = e => {
-    return parentProps.onConfirm(e, setProgress);
+    parentProps.onConfirm(e, setProgress);
   };
 
   const blurHandler = e => null; //(files.length > 1 ? fieldAttributes.onBlur(e) : null);
 
   useEffect(() => {
-    fieldAttributes.onChange({ target: inputRef.current }, files);
-    console.log(inputRef);
+    // fieldAttributes.onChange({ target: inputRef.current }, files);
     // Make sure to revoke the data uris to avoid memory leaks
     files.forEach(file => URL.revokeObjectURL(file.preview));
   }, [files]);
@@ -62,7 +62,7 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
         <div className="form-actions custom-file mb-3">
           <input
             {...mergedAttributes}
-            onChange={e => handleChange(e, files)}
+            onChange={e => handleChange(e)}
             onClick={open}
             onBlur={blurHandler}
           />
@@ -85,7 +85,13 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
             </div>
           </div>
         </div>
-        <input value="Upload" className="btn btn-block mt-4" onClick={handleUpload} readOnly />
+        <input
+          type="submit"
+          value="Upload"
+          className="btn btn-block mt-4"
+          onClick={handleUpload}
+          readOnly
+        />
       </section>
     </>
   );

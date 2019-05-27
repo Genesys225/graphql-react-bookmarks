@@ -15,7 +15,6 @@ const Form = props => {
   );
   // setting the field state function, it is passed to the fields components to be used there
   const setFieldState = (fieldName, fieldTarget, files) => {
-    console.log(fieldTarget, files);
     const prevState = inputValues;
     // this is the validation step, it returns an error object or false
     const error = formValidation(fieldTarget, files);
@@ -35,18 +34,20 @@ const Form = props => {
       });
     // sets file inputs
     else if (fieldTarget.type === "file") {
-      if (files && files.length > 0)
+      if (files && files.length > 0) {
         setInputValues({
           ...prevState,
           [fieldName]: files
         });
+        setFormErrors(false);
+      }
     }
     // this is the actual state set
     else setInputValues({ ...prevState, [fieldName]: fieldTarget.value });
   };
 
   const onConfirm = (e, setProgress) => {
-    console.log(inputValues);
+    console.log(inputValues, formErrors);
     if (!formErrors) {
       e.preventDefault();
       props.submitForm(inputValues, setProgress);

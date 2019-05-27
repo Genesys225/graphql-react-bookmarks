@@ -9,22 +9,23 @@ export const FormField = props => {
 
   const validate = (target, files) => {
     let error;
-    target.type === "file" && (error = props.setFieldState(camelName, target, files));
-    // this only reurns errors if they are present else leaves error undefined
-    error = props.setFieldState(camelName, target);
+    target.type === "file"
+      ? (error = props.setFieldState(camelName, target, files))
+      : // this only reurns errors if they are present else leaves error undefined
+        (error = props.setFieldState(camelName, target));
     setError(error);
   };
 
   const changeEventHandler = ({ target }, files) => {
-    console.log(files, target);
-    target.type === "file" && validate(target, files);
-    validate(target);
+    if (target.type === "file") validate(target, files);
+    else validate(target);
   };
 
-  const blurEventHandler = ({ target }) => {
-    console.log(target);
+  const blurEventHandler = ({ target }, files) => {
     setfirstBlur(true);
-    validate(target);
+    console.log(files, target, "BLUR");
+    if (target.type === "file") validate(target, files);
+    else validate(target);
   };
 
   // const focusEventHandler = () => setfirstBlur(false);

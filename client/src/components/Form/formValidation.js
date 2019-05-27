@@ -1,18 +1,16 @@
 export default function formValidation(inputsArr, files) {
   let errors;
   const validateSingle = input => {
-    console.log(files);
     let error = { id: input.id };
-    if (files) {
+    if (Array.isArray(files)) {
       if (files.length > 0) {
-        console.log(input.validationMessage, input, error);
         error.value = false;
         return error;
       } else {
         error.value = input.validationMessage;
         return error;
       }
-    } else if (!input.validity.valid) {
+    } else if (!input.validity.valid && input.type !== "file") {
       switch (input.type) {
         case "email":
           error.value = emailValidationHandler(input);
