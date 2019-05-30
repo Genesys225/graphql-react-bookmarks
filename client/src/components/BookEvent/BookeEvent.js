@@ -35,7 +35,7 @@ export default function BookEventComp() {
     nullSelectedEvent();
   };
 
-  const uploadFile = ({ fileUpload }, setProgress) => {
+  const uploadFile = ({ fileUpload }, setProgressBar) => {
     try {
       fileUpload.forEach(async file => {
         const formData = new FormData();
@@ -45,8 +45,7 @@ export default function BookEventComp() {
             "Content-Type": "multipart/form-date",
             Authorization: `Bearer ${token}`
           },
-          onUploadProgress: ProgressEvent =>
-            setProgress(Math.trunc((ProgressEvent.loaded / ProgressEvent.total) * 100))
+          onUploadProgress: ProgressEvent => setProgressBar(ProgressEvent, file.name)
         });
         console.log(res.data);
       });

@@ -2,18 +2,21 @@ import React, { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 
 const FileInput = ({ fieldAttributes, parentProps }) => {
-  const [progress, setProgress] = useState(null);
   const { title, error, camelName } = parentProps;
   const [files, setFiles] = useState([]);
 
   const { getRootProps, getInputProps, open, inputRef } = useDropzone({
     accept: "image/*",
     onDrop: acceptedFiles => {
+      const filteredFiles = acceptedFiles.filter(
+        file => !files.some(stateFile => stateFile.name === file.name)
+      );
       const updatedFileList = [
         ...files,
-        ...acceptedFiles.map(file => {
+        ...filteredFiles.map(file => {
           return Object.assign(file, {
-            preview: URL.createObjectURL(file)
+            preview: URL.createObjectURL(file),
+            progress: null
           });
         })
       ];
@@ -26,22 +29,28 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
     noKeyboard: true
   });
 
-  const handleChange = e => {
-    getInputProps().onChange(e);
-  };
+  const handleRemoveImg = fileName => setFiles(files.filter(file => fileName !== file.name));
 
+  const handleChange = e => getInputProps().onChange(e);
+
+  const setProgressBar = (progressEvent, fileName) => {
+    const updatedProgress = files.map(file => {
+      if (file.name === fileName)
+        file.progress = Math.trunc((progressEvent.loaded / progressEvent.total) * 100);
+      return file;
+    });
+
+    setFiles(updatedProgress);
+  };
   // extending the form framework functinality with dropzone's features
   const mergedAttributes = Object.assign({}, fieldAttributes, getInputProps());
   delete mergedAttributes.style;
 
-  const handleUpload = e => {
-    parentProps.onConfirm(e, setProgress);
-  };
+  const handleUpload = e => parentProps.onConfirm(e, setProgressBar);
 
   const blurHandler = e => null; //(files.length > 1 ? fieldAttributes.onBlur(e) : null);
 
   useEffect(() => {
-    // fieldAttributes.onChange({ target: inputRef.current }, files);
     // Make sure to revoke the data uris to avoid memory leaks
     files.forEach(file => URL.revokeObjectURL(file.preview));
   }, [files]);
@@ -50,6 +59,44 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
     <div style={thumb} key={file.name}>
       <div style={thumbInner}>
         <img alt={file.name} src={file.preview} style={img} />
+        <div className="cintainer justify-content-start">
+          <button id={file.name} className="btn btn-warn" style={{ ...containerBtn, left: 6 }}>
+            <span role="img" aria-label="crop">
+              ✂️
+            </span>
+          </button>
+          <button
+            className="btn btn-warn"
+            style={{ ...containerBtn, right: 6 }}
+            onClick={() => handleRemoveImg(file.name)}
+          >
+            <span role="img" aria-label="remove">
+              ❌
+            </span>
+          </button>
+        </div>
+      </div>
+      <div className="progress" style={{ display: "block" }}>
+        {file.progress && (
+          <div
+            className="progress-bar progress-bar-striped"
+            role="progressbar"
+            style={{
+              width: `${file.progress}%`,
+              ...thumbInner,
+              position: "absolute",
+              bottom: 4,
+              left: 4,
+              borderRadius: ".25rem",
+              maxWidth: 90
+            }}
+            aria-valuenow={file.progress}
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            {file.progress && file.progress + "%"}
+          </div>
+        )}
       </div>
     </div>
   ));
@@ -72,18 +119,21 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
           <div className="invalid-feedback m-0" style={{ height: "0px" }}>
             {error}
           </div>
-          <div className="progress">
+          {/* <div className="progress">
             <div
               className="progress-bar progress-bar-striped"
               role="progressbar"
-              style={{ width: `${progress}%`, display: error ? "hide" : "block" }}
+              style={{
+                width: `${progress}%`,
+                display: error ? "hide" : "block"
+              }}
               aria-valuenow={progress}
               aria-valuemin="0"
               aria-valuemax="100"
             >
               {progress && progress + "%"}
             </div>
-          </div>
+          </div> */}
         </div>
         <input
           type="submit"
@@ -111,14 +161,16 @@ const thumbsContainer = {
 };
 
 const thumb = {
+  position: "relative",
   display: "inline-flex",
   borderRadius: 2,
   border: "1px solid #eaeaea",
   marginBottom: 8,
   marginRight: 8,
   width: 100,
-  height: 100,
+  height: 124,
   padding: 4,
+  paddingBottom: 28,
   boxSizing: "border-box"
 };
 
@@ -129,7 +181,18 @@ const thumbInner = {
 };
 
 const img = {
-  display: "block",
+  // display: "block",
   width: "auto",
   height: "100%"
+};
+const containerBtn = {
+  position: "absolute",
+  background: "unset",
+  border: "unset",
+  top: 6,
+  padding: 0,
+  margin: 0,
+  width: 24,
+  height: 24,
+  fontSize: "10"
 };

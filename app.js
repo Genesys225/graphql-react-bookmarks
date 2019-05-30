@@ -15,7 +15,7 @@ app.use(manageHeaders);
 app.use(verifyJwt);
 
 app.use(express.static(__dirname + "/client/build"));
-app.use(express.static(__dirname + "/client/public"));
+// app.use(express.static(__dirname + "/client/public"));
 
 app.use("/api/uploads", require("./routes/api/uploads"));
 
