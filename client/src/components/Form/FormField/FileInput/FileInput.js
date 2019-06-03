@@ -21,7 +21,7 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
           });
         })
       ];
-      // passing the dropzone chnage event to the form framework to validate and store
+      // passing the dropzone change event to the form framework to validate and store
       fieldAttributes.onChange({ target: inputRef.current }, updatedFileList);
       setFiles(updatedFileList);
       return;
@@ -43,7 +43,7 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
     });
     setFiles(updatedProgress);
   };
-  // extending the form framework functinality with dropzone's features
+  // extending the form framework functionality with dropzone's features
   const mergedAttributes = Object.assign({}, fieldAttributes, getInputProps());
   delete mergedAttributes.style;
 
@@ -66,7 +66,6 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
   useEffect(() => {
     // Make sure to revoke the data uris to avoid memory leaks
     return () => {
-      console.log("unmounting");
       files.forEach(file => URL.revokeObjectURL(file.preview));
     };
   }, []);
@@ -201,7 +200,6 @@ const thumbInner = {
 };
 
 const img = {
-  // display: "block",
   width: "auto",
   height: "100%"
 };

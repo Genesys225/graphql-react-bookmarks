@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import FileInput from "./FileInput";
 
 export const FormField = props => {
-  const [firstBlur, setfirstBlur] = useState(false);
+  const [firstBlur, setFirstBlur] = useState(false);
   const [error, setError] = useState(false);
   const camelName = camelize(props.children.toString());
 
@@ -11,7 +11,7 @@ export const FormField = props => {
     let error;
     target.type === "file"
       ? (error = props.setFieldState(camelName, target, files))
-      : // this only reurns errors if they are present else leaves error undefined
+      : // this only returns errors if they are present else leaves error undefined
         (error = props.setFieldState(camelName, target));
     setError(error);
   };
@@ -22,13 +22,13 @@ export const FormField = props => {
   };
 
   const blurEventHandler = ({ target }, files) => {
-    setfirstBlur(true);
+    setFirstBlur(true);
     console.log(files, target, "BLUR");
     if (target.type === "file") validate(target, files);
     else validate(target);
   };
 
-  // const focusEventHandler = () => setfirstBlur(false);
+  // const focusEventHandler = () => setFirstBlur(false);
 
   const { children: title, type } = props;
 

@@ -15,7 +15,6 @@ const ImageCrop = props => {
     setCroppedPixels(croppedAreaPixels);
   }, []);
   const executeCrop = async () => {
-    // debugger;
     const { blobUrl, file } = await getCroppedImg(img, croppedPixels, true);
     setImg(blobUrl);
     await console.log(file);
