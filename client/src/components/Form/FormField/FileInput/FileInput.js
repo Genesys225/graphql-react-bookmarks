@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import ImageCrop from "./Image/ImageCrop";
+import ImageCrop from "./ImageInput/ImageCrop";
 
 const FileInput = ({ fieldAttributes, parentProps }) => {
   const { title, error, camelName } = parentProps;
@@ -51,19 +51,31 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
 
   const blurHandler = e => fieldAttributes.onBlur(e);
 
-  const handleCropper = ({ name: fileName }) => {
-    console.log(fileName);
+  const showCropper = ({ name: fileName }, state) => {
     const updatedCropper = files.map(file => {
-      if (file.name === fileName) file.cropper = true;
+      if (file.name === fileName) file.cropper = state;
       return file;
     });
-    console.log(updatedCropper);
     setFiles(updatedCropper);
   };
 
-  const handleCropApproved = croppedImage => {
-    console.log(croppedImage);
+  const handleCropper = file => showCropper(file, true);
+
+  const handleApproveCrop = (croppedImage, file, img) => {
+    const fileName = { name: file };
+    showCropper(fileName, false);
+    Object.assign(croppedImage, {
+      preview: img,
+      path: file,
+      progress: null
+    });
+    const updatedFiles = [...files, croppedImage];
+    setFiles(updatedFiles);
+    fieldAttributes.onChange({ target: inputRef.current }, updatedFiles);
+    console.log(updatedFiles);
   };
+
+  const handleCropCanceled = file => showCropper(file, false);
 
   useEffect(() => {
     // Make sure to revoke the data uris to avoid memory leaks
@@ -73,18 +85,23 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
   }, []);
 
   const thumbs = files.map(file => (
-    <>
+    <React.Fragment key={file.name}>
       {file.cropper ? (
-        <ImageCrop src={file.preview} onCropApproved={handleCropApproved} />
+        <ImageCrop
+          src={file.preview}
+          fileName={file.name}
+          onApproveCrop={handleApproveCrop}
+          onCancelCrop={() => handleCropCanceled(file)}
+        />
       ) : (
-        <div style={thumb} key={file.name}>
+        <div style={thumb}>
           <div style={thumbInner}>
             <img alt={file.name} src={file.preview} style={img} />
             <div className="container justify-content-start">
               <button
                 className="btn btn-warn"
                 style={{ ...containerBtn, left: 6 }}
-                onClick={() => console.log("blah bllah")}
+                onClick={() => handleCropper(file)}
               >
                 <span role="img" aria-label="crop">
                   ✂️
@@ -96,7 +113,7 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
                 onClick={() => handleRemoveImg(file)}
               >
                 <span role="img" aria-label="remove">
-                  ❌
+                  🗑
                 </span>
               </button>
             </div>
@@ -118,7 +135,7 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
           </div>
         </div>
       )}
-    </>
+    </React.Fragment>
   ));
   return (
     <>
@@ -166,7 +183,6 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
     </>
   );
 };
-
 export default FileInput;
 
 const thumbsContainer = {
@@ -180,7 +196,6 @@ const thumbsContainer = {
   borderRadius: ".25rem",
   padding: "0.5rem"
 };
-
 const thumb = {
   position: "relative",
   display: "inline-flex",
@@ -194,13 +209,11 @@ const thumb = {
   paddingBottom: 20,
   boxSizing: "border-box"
 };
-
 const thumbInner = {
   display: "flex",
   minWidth: 0,
   overflow: "hidden"
 };
-
 const img = {
   width: "auto",
   height: "100%"
@@ -216,7 +229,6 @@ const containerBtn = {
   height: 24,
   fontSize: "10"
 };
-
 const progressContainer = {
   position: "absolute",
   bottom: 4,

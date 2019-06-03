@@ -1,6 +1,6 @@
 import { camelize } from "../../../utils/utilities";
 import React, { useState } from "react";
-import FileInput from "./FileInput";
+import FileInput from "./FileInput/FileInput";
 
 export const FormField = props => {
   const [firstBlur, setFirstBlur] = useState(false);

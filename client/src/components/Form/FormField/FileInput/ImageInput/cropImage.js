@@ -15,39 +15,24 @@ const createImage = url =>
 export default async function getCroppedImg(imageSrc, pixelCrop, round = false) {
   const image = await createImage(imageSrc);
   const canvas = document.createElement("canvas");
-  canvas.width = pixelCrop.width;
-  canvas.height = pixelCrop.height;
+  const { width, height, x, y } = pixelCrop;
+  canvas.width = width;
+  canvas.height = height;
   const ctx = canvas.getContext("2d");
   console.log(round);
   if (round) {
-    ctx.drawImage(image, -pixelCrop.x, -pixelCrop.y);
-    ctx.globalCompositeOperation = "destination-in";
     ctx.beginPath();
-    ctx.arc(pixelCrop.width / 2, pixelCrop.height / 2, pixelCrop.width / 2, 0, Math.PI * 2);
-    // ctx.closePath();
-    ctx.fill();
-    // ctx.globalCompositeOperation = "xor";
-    // ctx.fillStyle = "rgba(255,255,255,0)"; // or 'transparent'
-    // ctx.fillRect(pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height);
-  } else
-    ctx.drawImage(
-      image,
-      pixelCrop.x,
-      pixelCrop.y,
-      pixelCrop.width,
-      pixelCrop.height,
-      0,
-      0,
-      pixelCrop.width,
-      pixelCrop.height
-    );
+    ctx.arc(width / 2, height / 2, width / 2, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(image, -x, -y);
+  } else ctx.drawImage(image, x, y, width, height, 0, 0, width, height);
   // As Base64 string
   // return canvas.toDataURL('image/jpeg');
 
   // As a blob
   return new Promise((resolve, reject) => {
     canvas.toBlob(blob => {
-      const file = new File([blob], "blobfile.jpeg");
+      const file = new File([blob], "blobfile.jpeg", { type: "image/jpeg" });
       resolve({ blobUrl: URL.createObjectURL(blob), file });
     }, "image/jpeg");
   });
