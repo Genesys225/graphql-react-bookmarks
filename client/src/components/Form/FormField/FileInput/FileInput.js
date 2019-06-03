@@ -52,10 +52,12 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
   const blurHandler = e => fieldAttributes.onBlur(e);
 
   const handleCropper = ({ name: fileName }) => {
+    console.log(fileName);
     const updatedCropper = files.map(file => {
       if (file.name === fileName) file.cropper = true;
       return file;
     });
+    console.log(updatedCropper);
     setFiles(updatedCropper);
   };
 
@@ -82,7 +84,7 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
               <button
                 className="btn btn-warn"
                 style={{ ...containerBtn, left: 6 }}
-                onClick={() => handleCropper(file)}
+                onClick={() => console.log("blah bllah")}
               >
                 <span role="img" aria-label="crop">
                   ✂️
