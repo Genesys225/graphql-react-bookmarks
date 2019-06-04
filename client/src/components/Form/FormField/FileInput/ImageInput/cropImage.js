@@ -4,7 +4,7 @@ const createImage = url =>
     image.src = url.toString();
     image.onload = () => resolve(image);
     image.onerror = error => reject(error);
-    // image.setAttribute("crossOrigin", "anonymous"); // needed to avoid cross-origin issues on CodeSandbox
+    image.setAttribute("crossOrigin", "anonymous"); // needed to avoid cross-origin issues on CodeSandbox
   });
 
 /**
@@ -19,7 +19,6 @@ export default async function getCroppedImg(imageSrc, pixelCrop, round = false) 
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext("2d");
-  console.log(round);
   if (round) {
     ctx.beginPath();
     ctx.arc(width / 2, height / 2, width / 2, 0, Math.PI * 2);
@@ -32,8 +31,8 @@ export default async function getCroppedImg(imageSrc, pixelCrop, round = false) 
   // As a blob
   return new Promise((resolve, reject) => {
     canvas.toBlob(blob => {
-      const file = new File([blob], "blobfile.jpeg", { type: "image/jpeg" });
+      const file = new File([blob], "blobfile.jpeg", { type: "image/bmp" });
       resolve({ blobUrl: URL.createObjectURL(blob), file });
-    }, "image/jpeg");
+    }, "image/bmp");
   });
 }
