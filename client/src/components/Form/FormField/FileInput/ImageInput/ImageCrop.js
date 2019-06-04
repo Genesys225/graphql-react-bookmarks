@@ -1,8 +1,7 @@
 import React, { useState, useCallback } from "react";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "./cropImage";
-
-import "./styles.css";
+import styled from "styled-components";
 
 const ImageCrop = props => {
   const [img, setImg] = useState(props.src);
@@ -23,36 +22,27 @@ const ImageCrop = props => {
   };
 
   return (
-    <div className="App">
-      <div className="crop-container">
+    <MainCropContainer>
+      <CropContainer>
         <div className="crop-controls">
-          <button
+          <AcceptBtn
             className="btn btn-warn"
-            style={{ ...containerBtn, top: 6, right: 6 }}
             onClick={() => props.onApproveCrop(file, props.fileName, img)}
           >
             <span role="img" aria-label="approve">
               ✅
             </span>
-          </button>
-          <button
-            className="btn btn-warn"
-            style={{ ...containerBtn, top: 6, left: 6 }}
-            onClick={() => executeCrop()}
-          >
+          </AcceptBtn>
+          <CropBtn className="btn btn-warn" onClick={() => executeCrop()}>
             <span role="img" aria-label="crop">
               ✂️
             </span>
-          </button>
-          <button
-            className="btn btn-warn"
-            style={{ ...containerBtn, bottom: 6, left: 6 }}
-            onClick={() => props.onCancelCrop()}
-          >
+          </CropBtn>
+          <CancelBtn className="btn btn-warn" onClick={() => props.onCancelCrop()}>
             <span role="img" aria-label="cancel">
               ❌
             </span>
-          </button>
+          </CancelBtn>
         </div>
         <Cropper
           image={img}
@@ -65,7 +55,7 @@ const ImageCrop = props => {
           onZoomChange={setZoom}
           crossOrigin="anonymous"
         />
-      </div>
+      </CropContainer>
       {/* <div className="controls">
         <Slider
           value={zoom}
@@ -77,20 +67,48 @@ const ImageCrop = props => {
           classes={{ container: "slider" }}
         />
       </div> */}
-    </div>
+    </MainCropContainer>
   );
 };
 
 export default ImageCrop;
-const containerBtn = {
-  position: "absolute",
-  background: "unset",
-  border: "unset",
 
-  padding: 0,
-  margin: 0,
-  width: 24,
-  height: 24,
-  fontSize: "10",
-  zIndex: 1
-};
+const CropContainer = styled.div`
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  button {
+    position: absolute;
+    background: unset;
+    border: unset;
+    padding: 0px;
+    margin: 0px;
+    width: 24px;
+    height: 24px;
+    font-size: 20px;
+    z-index: 10;
+  }
+`;
+
+const AcceptBtn = styled.button`
+  top: 6px;
+  right: 6px;
+`;
+const CropBtn = styled.button`
+  top: 6px;
+  left: 6px;
+`;
+const CancelBtn = styled.button`
+  bottom: 6px;
+  left: 6px;
+`;
+
+const MainCropContainer = styled.div`
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+`;
