@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import ImageCrop from "./ImageInput/ImageCrop";
-
+import styled from "styled-components";
+import { faRegular } from "styled-icons";
+// faRegular.HandScissors
 const FileInput = ({ fieldAttributes, parentProps }) => {
   const { title, error, camelName } = parentProps;
   const [files, setFiles] = useState([]);
-
+  // dropzone plugin declaration
   const { getRootProps, getInputProps, open, inputRef } = useDropzone({
     accept: "image/*",
     onDrop: acceptedFiles => {
@@ -28,16 +30,14 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
     noKeyboard: true
   });
 
+  // this happens every time page loads and when files array is updated
   useEffect(
     // passing the dropzone change event to the form framework to validate and store
     () => fieldAttributes.onChange({ target: inputRef.current }, files),
     [files]
   );
 
-  const handleRemoveImg = ({ name: fileName }) =>
-    setFiles(files.filter(file => fileName !== file.name));
-
-  const handleChange = e => getInputProps().onChange(e);
+  const handleRemoveImg = ({ name: fileName }) => setFiles(files.filter(file => fileName !== file.name));
 
   const setProgressBar = (progressEvent, fileName) => {
     const updatedProgress = files.map(file => {
@@ -97,30 +97,22 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
           onCancelCrop={() => handleCropCanceled(file)}
         />
       ) : (
-        <div style={thumb}>
-          <div style={thumbInner}>
-            <img alt={file.name} src={file.preview} style={img} />
-            <div className="container justify-content-start">
-              <button
-                className="btn btn-warn"
-                style={{ ...containerBtn, left: 6 }}
-                onClick={() => handleCropper(file)}
-              >
+        <Thumb>
+          <ThumbInner>
+            <img alt={file.name} src={file.preview} />
+            <div>
+              <button className="btn btn-warn" style={{ left: 6 }} onClick={() => handleCropper(file)}>
                 <span role="img" aria-label="crop">
                   ✂️
                 </span>
               </button>
-              <button
-                className="btn btn-warn"
-                style={{ ...containerBtn, right: 6 }}
-                onClick={() => handleRemoveImg(file)}
-              >
+              <button className="btn btn-warn" style={{ right: 6 }} onClick={() => handleRemoveImg(file)}>
                 <span role="img" aria-label="remove">
                   🗑
                 </span>
               </button>
             </div>
-          </div>
+          </ThumbInner>
           <div className="progress" style={progressContainer}>
             <div
               className="progress-bar progress-bar-striped"
@@ -136,7 +128,7 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
               {file.progress && file.progress + "%"}
             </div>
           </div>
-        </div>
+        </Thumb>
       )}
     </React.Fragment>
   ));
@@ -144,15 +136,10 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
     <>
       <section className="container">
         <div {...getRootProps({ className: "dropzone mb-2" })}>
-          <aside style={thumbsContainer}>{thumbs}</aside>
+          <ThumbsContainer>{thumbs}</ThumbsContainer>
         </div>
         <div className="form-actions custom-file mb-3">
-          <input
-            {...mergedAttributes}
-            onChange={e => handleChange(e)}
-            onClick={open}
-            onBlur={blurHandler}
-          />
+          <input {...mergedAttributes} onClick={open} onBlur={blurHandler} />
           <label htmlFor={camelName} className="custom-file-label">
             {title}
           </label>
@@ -175,62 +162,61 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
             </div>
           </div> */}
         </div>
-        <input
-          type="submit"
-          value="Upload"
-          className="btn btn-block mt-4"
-          onClick={handleUpload}
-          readOnly
-        />
+        <input type="submit" value="Upload" className="btn btn-block mt-4" onClick={handleUpload} readOnly />
       </section>
     </>
   );
 };
 export default FileInput;
 
-const thumbsContainer = {
-  position: "relative",
-  display: "flex",
-  flexDirection: "row",
-  flexWrap: "wrap",
-  marginTop: "2rem",
-  height: "16.25rem",
-  border: "2px dashed #ced4da",
-  borderRadius: ".25rem",
-  padding: "0.5rem"
-};
-const thumb = {
-  position: "relative",
-  display: "inline-flex",
-  borderRadius: 2,
-  border: "1px solid #eaeaea",
-  marginBottom: 8,
-  marginRight: 8,
-  width: 100,
-  height: 116,
-  padding: 4,
-  paddingBottom: 20,
-  boxSizing: "border-box"
-};
+const ThumbsContainer = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+  height: 16.25rem;
+  border: 2px dashed #ced4da;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+`;
+const Thumb = styled.div`
+  position: relative;
+  display: inline-flex;
+  border-radius: 2px;
+  border: 1px solid #eaeaea;
+  margin-bottom: 8px;
+  margin-right: 8px;
+  width: 100px;
+  height: 116px;
+  padding: 4px;
+  padding-bottom: 20px;
+  box-sizing: border-box;
+  img {
+    width: auto;
+    height: 100%;
+  }
+  .btn {
+    position: absolute;
+    background: unset;
+    border: unset;
+    top: 6px;
+    padding: 0;
+    margin: 0;
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+`;
+const ThumbInner = styled.div`
+  display: flex;
+  min-width: 0;
+  overflow: hidden;
+`;
 const thumbInner = {
   display: "flex",
   minWidth: 0,
   overflow: "hidden"
-};
-const img = {
-  width: "auto",
-  height: "100%"
-};
-const containerBtn = {
-  position: "absolute",
-  background: "unset",
-  border: "unset",
-  top: 6,
-  padding: 0,
-  margin: 0,
-  width: 24,
-  height: 24,
-  fontSize: "10"
 };
 const progressContainer = {
   position: "absolute",
