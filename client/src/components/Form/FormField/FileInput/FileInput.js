@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import ImageCrop from "./ImageInput/ImageCrop";
 
@@ -21,14 +21,18 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
           });
         })
       ];
-      // passing the dropzone change event to the form framework to validate and store
-      fieldAttributes.onChange({ target: inputRef.current }, updatedFileList);
       setFiles(updatedFileList);
       return;
     },
     noClick: true,
     noKeyboard: true
   });
+
+  useEffect(
+    // passing the dropzone change event to the form framework to validate and store
+    () => fieldAttributes.onChange({ target: inputRef.current }, files),
+    [files]
+  );
 
   const handleRemoveImg = ({ name: fileName }) =>
     setFiles(files.filter(file => fileName !== file.name));
@@ -71,7 +75,6 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
     });
     const updatedFiles = [...files, croppedImage];
     setFiles(updatedFiles);
-    fieldAttributes.onChange({ target: inputRef.current }, updatedFiles);
     console.log(updatedFiles);
   };
 

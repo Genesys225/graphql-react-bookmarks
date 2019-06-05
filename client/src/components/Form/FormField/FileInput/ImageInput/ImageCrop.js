@@ -14,6 +14,7 @@ const ImageCrop = props => {
     console.log(croppedArea, croppedAreaPixels, zoom);
     setCroppedPixels(croppedAreaPixels);
   }, []);
+
   const executeCrop = async () => {
     const { blobUrl, file } = await getCroppedImg(img, croppedPixels, true);
     setImg(blobUrl);
@@ -22,40 +23,37 @@ const ImageCrop = props => {
   };
 
   return (
-    <MainCropContainer>
-      <CropContainer>
-        <div className="crop-controls">
-          <AcceptBtn
-            className="btn btn-warn"
-            onClick={() => props.onApproveCrop(file, props.fileName, img)}
-          >
-            <span role="img" aria-label="approve">
-              ✅
-            </span>
-          </AcceptBtn>
-          <CropBtn className="btn btn-warn" onClick={() => executeCrop()}>
-            <span role="img" aria-label="crop">
-              ✂️
-            </span>
-          </CropBtn>
-          <CancelBtn className="btn btn-warn" onClick={() => props.onCancelCrop()}>
-            <span role="img" aria-label="cancel">
-              ❌
-            </span>
-          </CancelBtn>
-        </div>
-        <Cropper
-          image={img}
-          crop={crop}
-          zoom={zoom}
-          aspect={1}
-          cropShape="round"
-          onCropChange={setCrop}
-          onCropComplete={onCropComplete}
-          onZoomChange={setZoom}
-          crossOrigin="anonymous"
-        />
-      </CropContainer>
+    <CropContainer>
+      <AcceptBtn
+        className="btn btn-warn"
+        onClick={() => props.onApproveCrop(file, props.fileName, img)}
+      >
+        <span role="img" aria-label="approve">
+          ✅
+        </span>
+      </AcceptBtn>
+      <CropBtn className="btn btn-warn" onClick={() => executeCrop()}>
+        <span role="img" aria-label="crop">
+          ✂️
+        </span>
+      </CropBtn>
+      <CancelBtn className="btn btn-warn" onClick={() => props.onCancelCrop()}>
+        <span role="img" aria-label="cancel">
+          ❌
+        </span>
+      </CancelBtn>
+      <Cropper
+        image={img}
+        crop={crop}
+        zoom={zoom}
+        aspect={1}
+        showGrid={false}
+        cropShape="round" // cropShape= 'rect' | 'round'
+        onCropChange={setCrop}
+        onCropComplete={onCropComplete}
+        onZoomChange={setZoom}
+        crossOrigin="anonymous"
+      />
       {/* <div className="controls">
         <Slider
           value={zoom}
@@ -67,7 +65,7 @@ const ImageCrop = props => {
           classes={{ container: "slider" }}
         />
       </div> */}
-    </MainCropContainer>
+    </CropContainer>
   );
 };
 
@@ -103,12 +101,4 @@ const CropBtn = styled.button`
 const CancelBtn = styled.button`
   bottom: 6px;
   left: 6px;
-`;
-
-const MainCropContainer = styled.div`
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
 `;
