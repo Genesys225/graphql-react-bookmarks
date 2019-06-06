@@ -42,8 +42,7 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
     [files]
   );
 
-  const handleRemoveImg = ({ name: fileName }) =>
-    setFiles(files.filter(file => fileName !== file.name));
+  const handleRemoveImg = ({ name: fileName }) => setFiles(files.filter(file => fileName !== file.name));
 
   const setProgressBar = (progressEvent, fileName) => {
     const updatedProgress = files.map(file => {
@@ -159,13 +158,7 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
             </div>
           </div> */}
         </div>
-        <input
-          type="submit"
-          value="Upload"
-          className="btn btn-block mt-4"
-          onClick={handleUpload}
-          readOnly
-        />
+        <input type="submit" value="Upload" className="btn btn-block mt-4" onClick={handleUpload} readOnly />
       </section>
     </>
   );
@@ -229,6 +222,6 @@ const ProgressContainer = styled.div`
   position: absolute;
   bottom: 4px;
   left: 4px;
-  borderradius: 0.25rem;
+  border-radius: 0.25rem;
   width: 90px;
 `;
