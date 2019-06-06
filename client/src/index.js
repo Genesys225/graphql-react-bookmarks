@@ -5,6 +5,10 @@ import "./index.css";
 import initClient from "./Gql/clientState/clientInit";
 import Spinner from "./components/Spinner/Spinner";
 import RestartClientContext from "./context/RestartClientContext";
+import "bootstrap/dist/css/bootstrap.css";
+import "bootstrap/dist/js/bootstrap.js";
+import "popper.js/dist/popper.js";
+import "jquery/dist/jquery.js";
 const App = lazy(() => import("./App"));
 
 const setupAndRender = async () => {

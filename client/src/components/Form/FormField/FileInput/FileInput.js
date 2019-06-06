@@ -2,14 +2,19 @@ import React, { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import ImageCrop from "./ImageInput/ImageCrop";
 import styled from "styled-components";
-import { faRegular } from "styled-icons";
-// faRegular.HandScissors
+import { Scissors } from "styled-icons/icomoon";
+import { TrashAlt } from "styled-icons/fa-regular/TrashAlt";
+
 const FileInput = ({ fieldAttributes, parentProps }) => {
   const { title, error, camelName } = parentProps;
   const [files, setFiles] = useState([]);
   // dropzone plugin declaration
+  const allowedFiles = {
+    mimeTypes: ["image/gif", "image/jpeg", "image/bmp", "image/png"],
+    maxWeight: null
+  };
   const { getRootProps, getInputProps, open, inputRef } = useDropzone({
-    accept: "image/*",
+    accept: allowedFiles.mimeTypes,
     onDrop: acceptedFiles => {
       const filteredFiles = acceptedFiles.filter(
         file => !files.some(stateFile => stateFile.name === file.name)
@@ -37,7 +42,8 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
     [files]
   );
 
-  const handleRemoveImg = ({ name: fileName }) => setFiles(files.filter(file => fileName !== file.name));
+  const handleRemoveImg = ({ name: fileName }) =>
+    setFiles(files.filter(file => fileName !== file.name));
 
   const setProgressBar = (progressEvent, fileName) => {
     const updatedProgress = files.map(file => {
@@ -70,7 +76,7 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
     showCropper(fileName, false);
     Object.assign(croppedImage, {
       preview: img,
-      path: file,
+      path: croppedImage.name,
       progress: null
     });
     const updatedFiles = [...files, croppedImage];
@@ -100,34 +106,25 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
         <Thumb>
           <ThumbInner>
             <img alt={file.name} src={file.preview} />
-            <div>
-              <button className="btn btn-warn" style={{ left: 6 }} onClick={() => handleCropper(file)}>
-                <span role="img" aria-label="crop">
-                  ✂️
-                </span>
-              </button>
-              <button className="btn btn-warn" style={{ right: 6 }} onClick={() => handleRemoveImg(file)}>
-                <span role="img" aria-label="remove">
-                  🗑
-                </span>
-              </button>
-            </div>
+            <button className="btn btn-warn left" onClick={() => handleCropper(file)}>
+              <Scissors title="Crop Image" size="16" />
+            </button>
+            <button className="btn btn-warn right" onClick={() => handleRemoveImg(file)}>
+              <TrashAlt title="Remove Image" size="16" />
+            </button>
           </ThumbInner>
-          <div className="progress" style={progressContainer}>
-            <div
+          <ProgressContainer className="progress">
+            <ThumbInner
               className="progress-bar progress-bar-striped"
               role="progressbar"
-              style={{
-                width: `${file.progress}%`,
-                ...thumbInner
-              }}
+              progress={file.progress}
               aria-valuenow={file.progress}
               aria-valuemin="0"
               aria-valuemax="100"
             >
               {file.progress && file.progress + "%"}
-            </div>
-          </div>
+            </ThumbInner>
+          </ProgressContainer>
         </Thumb>
       )}
     </React.Fragment>
@@ -162,7 +159,13 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
             </div>
           </div> */}
         </div>
-        <input type="submit" value="Upload" className="btn btn-block mt-4" onClick={handleUpload} readOnly />
+        <input
+          type="submit"
+          value="Upload"
+          className="btn btn-block mt-4"
+          onClick={handleUpload}
+          readOnly
+        />
       </section>
     </>
   );
@@ -180,6 +183,7 @@ const ThumbsContainer = styled.div`
   border-radius: 0.25rem;
   padding: 0.5rem;
 `;
+
 const Thumb = styled.div`
   position: relative;
   display: inline-flex;
@@ -205,23 +209,26 @@ const Thumb = styled.div`
     margin: 0;
     width: 24px;
     height: 24px;
-    font-size: 10px;
+  }
+  .left {
+    left: 6px;
+  }
+  .right {
+    right: 6px;
   }
 `;
+
 const ThumbInner = styled.div`
   display: flex;
+  width: ${props => props.progress || "inherit"}%;
   min-width: 0;
   overflow: hidden;
 `;
-const thumbInner = {
-  display: "flex",
-  minWidth: 0,
-  overflow: "hidden"
-};
-const progressContainer = {
-  position: "absolute",
-  bottom: 4,
-  left: 4,
-  borderRadius: ".25rem",
-  width: 90
-};
+
+const ProgressContainer = styled.div`
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  borderradius: 0.25rem;
+  width: 90px;
+`;

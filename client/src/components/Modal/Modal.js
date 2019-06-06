@@ -1,6 +1,7 @@
 import React from "react";
+import $ from "jquery";
 const Modal = props => {
-  const modalObj = window.$(`#${props.id}`);
+  const modalObj = $(`#${props.id}`);
 
   const showHide = state => {
     modalObj.modal(`${state ? "show" : "hide"}`);

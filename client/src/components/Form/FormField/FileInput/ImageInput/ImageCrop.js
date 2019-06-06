@@ -1,7 +1,10 @@
 import React, { useState, useCallback } from "react";
 import Cropper from "react-easy-crop";
-import getCroppedImg from "./cropImage";
+import getCroppedImg from "./canvasCropper";
 import styled from "styled-components";
+import { CancelOutline } from "styled-icons/typicons";
+import { Scissors } from "styled-icons/icomoon";
+import { CheckCircle } from "styled-icons/boxicons-regular";
 
 const ImageCrop = props => {
   const [img, setImg] = useState(props.src);
@@ -16,7 +19,8 @@ const ImageCrop = props => {
   }, []);
 
   const executeCrop = async () => {
-    const { blobUrl, file } = await getCroppedImg(img, croppedPixels, true);
+    const image = { img, fileName: props.fileName };
+    const { blobUrl, file } = await getCroppedImg(image, croppedPixels, true);
     setImg(blobUrl);
     setFile(file);
     setZoom(1);
@@ -28,19 +32,13 @@ const ImageCrop = props => {
         className="btn btn-warn"
         onClick={() => props.onApproveCrop(file, props.fileName, img)}
       >
-        <span role="img" aria-label="approve">
-          ✅
-        </span>
+        <CheckCircle title="Accept results" size="16" />
       </AcceptBtn>
       <CropBtn className="btn btn-warn" onClick={() => executeCrop()}>
-        <span role="img" aria-label="crop">
-          ✂️
-        </span>
+        <Scissors title="Execute crop" size="16" />
       </CropBtn>
       <CancelBtn className="btn btn-warn" onClick={() => props.onCancelCrop()}>
-        <span role="img" aria-label="cancel">
-          ❌
-        </span>
+        <CancelOutline title="Cancel crop" size="16" />
       </CancelBtn>
       <Cropper
         image={img}
@@ -85,7 +83,7 @@ const CropContainer = styled.div`
     margin: 0px;
     width: 24px;
     height: 24px;
-    font-size: 20px;
+    font-size: 1px;
     z-index: 10;
   }
 `;
