@@ -1,9 +1,9 @@
-export default function formValidation(inputsArr, files) {
+export default function formValidation(inputsArr) {
   let errors;
   const validateSingle = input => {
     let error = { id: input.id };
-    if (Array.isArray(files)) {
-      if (files.length > 0) {
+    if (Array.isArray(input.Files)) {
+      if (input.Files.length > 0) {
         error.value = false;
         return error;
       } else {
