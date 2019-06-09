@@ -1,37 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useContext } from "react";
 import ImageCrop from "./ImageCrop/ImageCrop";
 import styled from "styled-components";
 import { Scissors } from "styled-icons/icomoon";
 import { TrashAlt } from "styled-icons/fa-regular/TrashAlt";
 import ProgressBar from "../../../../ProgressBar/ProgressBar";
+import formReducer from "../../../formReducer";
 
-const Thumbs = props => {
-  const [cropper, setCropper] = useState(false);
-  const [files, setFiles] = props.files;
+const Thumbs = () => {
+  const reducer = useContext(formReducer);
+  const [state, dispatch] = reducer;
+  const { files, cropper } = state;
   const showCropper = ({ name: fileName }, state) => {
-    const updatedCropper = files.map(file => {
-      if (file.name === fileName) file.cropper = state;
-      return file;
-    });
-    setFiles(updatedCropper);
-    setCropper(state);
+    dispatch({ type: "setCropper", fileName, payload: state });
   };
 
-  const handleCropper = file => showCropper(file, true);
+  const handleCropStart = file => showCropper(file, true);
 
-  const handleRemoveImg = ({ name: fileName }) =>
-    setFiles(files.filter(file => fileName !== file.name));
+  const handleRemoveImg = ({ name: fileName }) => dispatch({ type: "removeFile", fileName });
 
-  const handleApproveCrop = (croppedImage, fileName, img) => {
-    showCropper(fileName, false);
-    Object.assign(croppedImage, {
-      preview: img,
-      path: croppedImage.name,
-      progress: null
-    });
-    const updatedFiles = [...files, croppedImage];
-    setFiles(updatedFiles);
-    console.log(croppedImage.name, fileName);
+  const handleApproveCrop = (croppedImage, originalFile, img) => {
+    showCropper(originalFile, false);
+    dispatch({ type: "addFiles", payload: [croppedImage], path: croppedImage.name, preview: img });
   };
 
   const handleCropCanceled = file => showCropper(file, false);
@@ -48,8 +37,7 @@ const Thumbs = props => {
       {cropper ? (
         file.cropper && (
           <ImageCrop
-            src={file.preview}
-            fileName={file.name}
+            imgFile={file}
             onApproveCrop={handleApproveCrop}
             onCancelCrop={() => handleCropCanceled(file)}
           />
@@ -58,7 +46,7 @@ const Thumbs = props => {
         <Thumb>
           <ThumbInner>
             <img alt={file.name} src={file.preview} />
-            <button className="btn btn-warn left" onClick={() => handleCropper(file)}>
+            <button className="btn btn-warn left" onClick={() => handleCropStart(file)}>
               <Scissors title="Crop Image" size="16" />
             </button>
             <button className="btn btn-warn right" onClick={() => handleRemoveImg(file)}>

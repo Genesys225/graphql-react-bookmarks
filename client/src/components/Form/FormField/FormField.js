@@ -7,12 +7,9 @@ export const FormField = props => {
   const [error, setError] = useState(false);
   const camelName = camelize(props.children.toString());
 
-  const validate = target => {
-    let error;
+  const validate = target =>
     // this only returns errors if they are present else leaves error undefined
-    error = props.setFieldState(camelName, target);
-    setError(error);
-  };
+    setError(props.setFieldState(camelName, target));
 
   const changeEventHandler = ({ target }) => validate(target);
 
@@ -43,7 +40,6 @@ export const FormField = props => {
   };
   //compares input.type equal to "number" or "range" and sets attributes and or defaults
   if (["number", "range"].contains(fieldAttributes.type)) {
-    console.log(fieldAttributes.type);
     fieldAttributes.min = props.min ? props.min : 0;
     fieldAttributes.max = props.max ? props.max : null;
   }
@@ -83,7 +79,7 @@ export const FormField = props => {
 
 /**
  * this is trying to deduce the input type from the passed tag body text
- * @param {String} - In tag text passed by the FormField the JSX DOM
+ * @param {String} - In tag text passed by the FormField, in the Form parent JSX DOM
  */
 const deduceType = title => {
   const lowerCaseTitle = title.toLowerCase();

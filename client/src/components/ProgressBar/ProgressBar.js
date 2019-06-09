@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 
 const ProgressBar = ({ progress, error = false }) => {
-  console.log(progress);
   return (
     <ProgressContainer className="progress" error={error}>
       <Progress

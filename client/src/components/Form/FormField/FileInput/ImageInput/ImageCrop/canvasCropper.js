@@ -37,7 +37,7 @@ export default async function getCroppedImg(
 
   // As a blob
   return new Promise((resolve, reject) => {
-    const fileName = `cropped_${image.fileName.split(".")[0]}.${fileExt}`;
+    const fileName = fileNamer(image, fileExt);
     canvas.toBlob(blob => {
       const file = new File([blob], fileName, {
         type: mimeType
@@ -46,3 +46,7 @@ export default async function getCroppedImg(
     }, mimeType);
   });
 }
+
+const fileNamer = ({ fileName }, fileExt) => {
+  return `cropped_${fileName.split(".")[0]}_0.${fileExt}`;
+};

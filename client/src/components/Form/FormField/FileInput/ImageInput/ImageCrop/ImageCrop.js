@@ -8,29 +8,30 @@ import { CheckCircle } from "styled-icons/boxicons-regular";
 import Slider from "../../../../../Slider/Slider";
 
 const ImageCrop = props => {
-  const [img, setImg] = useState(props.src);
+  const [img, setImg] = useState(props.imgFile.preview);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedPixels, setCroppedPixels] = useState(0);
   const [file, setFile] = useState({});
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
-    console.log(croppedArea, croppedAreaPixels, zoom);
+    console.log(croppedAreaPixels);
     setCroppedPixels(croppedAreaPixels);
   }, []);
 
   const executeCrop = async () => {
-    const image = { img, fileName: props.fileName };
+    const image = { img, fileName: props.imgFile.name };
     const { blobUrl, file } = await getCroppedImg(image, croppedPixels, true);
     setImg(blobUrl);
     setFile(file);
     setZoom(1);
+    return { blobUrl, file };
   };
 
-  const ApproveCropHandler = async () => {
-    console.log(file.name);
-    if (!file.name) await executeCrop();
-    await props.onApproveCrop(file, props.fileName, img);
+  const ApproveCropHandler = () => {
+    if (!(file instanceof File)) {
+      executeCrop().then(({ blobUrl, file }) => props.onApproveCrop(file, props.imgFile, blobUrl));
+    } else props.onApproveCrop(file, props.imgFile, img);
   };
 
   return (
@@ -57,15 +58,15 @@ const ImageCrop = props => {
           onZoomChange={setZoom}
           crossOrigin="anonymous"
         />
-        <SliderContainer>
-          <Slider
-            value={zoom}
-            min={1.0}
-            max={3.0}
-            step={0.1}
-            onChange={e => setZoom(e.target.value)}
-          />
-        </SliderContainer>
+        <Slider
+          title={"Zoom"}
+          value={zoom}
+          style={SliderContainer}
+          min={1.0}
+          max={3.0}
+          step={0.1}
+          onChange={e => setZoom(e.target.value)}
+        />
       </CropContainer>
     </>
   );
@@ -105,16 +106,13 @@ const CancelBtn = styled.button`
   left: 6px;
 `;
 
-const SliderContainer = styled.div`
-  z-index: 100;
-  position: absolute;
-  bottom: -62px;
-  width: 100%;
-  left: -2px;
-  background: #fff;
-  label {
-    vertical-align: middle;
-    padding: 0 2rem;
-    height: 4rem;
-  }
-`;
+const SliderContainer = {
+  zIndex: "100",
+  position: "absolute",
+  bottom: "-4.7rem",
+  width: "110%",
+  height: "4.5rem",
+  left: "-5%",
+  padding: "0 2rem",
+  background: " #fff"
+};
