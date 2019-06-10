@@ -75,7 +75,7 @@ const useFileInput = ({ initialFiles = [], fieldAttributes }) => {
     });
     if (files.length < 1) {
       inputRef.current.blur();
-      // setTotalProgress(null);
+      dispatch({ type: "clearTotalProgress" });
     }
   }, [files]);
 

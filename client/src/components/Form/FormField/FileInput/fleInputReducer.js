@@ -42,6 +42,21 @@ const fileInputReducer = (state, action) => {
         files: updatedProgress,
         totalProgress: updatedTotalProgress
       };
+    case "clearProgress":
+      const clearedProgress = state.files.map(file => {
+        file.cropper = null;
+        return file;
+      });
+      return {
+        ...state,
+        files: clearedProgress,
+        totalProgress: null
+      };
+    case "clearTotalProgress":
+      return {
+        ...state,
+        totalProgress: null
+      };
     case "setCropper":
       const updatedCropper = state.files.map(file => {
         if (file.name === action.fileName) file.cropper = action.payload;
