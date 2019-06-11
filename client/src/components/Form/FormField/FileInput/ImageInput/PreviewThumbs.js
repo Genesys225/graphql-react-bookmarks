@@ -4,32 +4,33 @@ import styled from "styled-components";
 import { Scissors } from "styled-icons/icomoon";
 import { TrashAlt } from "styled-icons/fa-regular/TrashAlt";
 import ProgressBar from "../../../../ProgressBar/ProgressBar";
-import formReducer from "../../../formReducer";
+import { types, FileInputStoreContext } from "../fileInputReducer";
 
 const Thumbs = () => {
-  const reducer = useContext(formReducer);
-  const [state, dispatch] = reducer;
+  const [state, dispatch] = useContext(FileInputStoreContext);
   const { files, cropper } = state;
-  const showCropper = ({ name: fileName }, state) => {
-    dispatch({ type: "setCropper", fileName, payload: state });
-  };
+  const showCropper = ({ name: fileName }, state) =>
+    dispatch({ type: types.setCropper, fileName, payload: state });
 
   const handleCropStart = file => showCropper(file, true);
 
-  const handleRemoveImg = ({ name: fileName }) => dispatch({ type: "removeFile", fileName });
+  const handleRemoveImg = ({ name: fileName }) => dispatch({ type: types.removeFile, fileName });
 
   const handleApproveCrop = (croppedImage, originalFile, img) => {
     showCropper(originalFile, false);
-    dispatch({ type: "addFiles", payload: [croppedImage], path: croppedImage.name, preview: img });
+    dispatch({
+      type: types.addFiles,
+      payload: [croppedImage],
+      path: croppedImage.name,
+      preview: img
+    });
   };
 
   const handleCropCanceled = file => showCropper(file, false);
 
   useEffect(() => {
     // Make sure to revoke the data uris to avoid memory leaks
-    return () => {
-      files.forEach(file => URL.revokeObjectURL(file.preview));
-    };
+    return () => dispatch({ type: types.revokeObjectURLs });
   }, []);
 
   const thumbs = files.map(file => (

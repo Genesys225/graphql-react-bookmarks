@@ -1,6 +1,7 @@
 import { camelize } from "../../../utils/utilities";
 import React, { useState } from "react";
 import FileInput from "./FileInput/FileInput";
+import FileInputStore from "./FileInput/fileInputReducer";
 
 export const FormField = props => {
   const [firstBlur, setFirstBlur] = useState(false);
@@ -59,7 +60,11 @@ export const FormField = props => {
   switch (fieldAttributes.type) {
     case "file":
       fieldAttributes.className = `${fieldAttributes.className} mb-1`;
-      return <FileInput fieldAttributes={fieldAttributes} parentProps={parentProps} />;
+      return (
+        <FileInputStore>
+          <FileInput fieldAttributes={fieldAttributes} parentProps={parentProps} />
+        </FileInputStore>
+      );
     default:
       return (
         <div className="form-group mb-3">

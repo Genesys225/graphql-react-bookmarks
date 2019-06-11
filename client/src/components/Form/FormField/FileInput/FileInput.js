@@ -1,17 +1,16 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useContext } from "react";
 import { useDropzone } from "react-dropzone";
 import Thumbs from "./ImageInput/PreviewThumbs";
 import ProgressBar from "../../../ProgressBar/ProgressBar";
-import fileInputReducer from "./fleInputReducer";
-import formReducer from "../../formReducer";
-const Context = formReducer;
+import { types, FileInputStoreContext } from "./fileInputReducer";
+
 const FileInput = ({ fieldAttributes, parentProps }) => {
   const { title, error, camelName } = parentProps;
 
-  const { files, totalProgressState, dropzone, reducer, cropper } = useFileInput({
+  const { files, progressState, dropzone, cropper } = useFileInput({
     fieldAttributes
   });
-  const [totalProgress, setProgressBar] = totalProgressState;
+  const [totalProgress, setProgressBar] = progressState;
   const [getRootProps, inputAttributes, open, inputRef] = dropzone;
 
   const handleUpload = e => parentProps.onConfirm(e, setProgressBar);
@@ -19,7 +18,7 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
   const blurHandler = () => fieldAttributes.onBlur({ target: inputRef.current });
 
   return (
-    <Context.Provider value={reducer}>
+    <>
       <section className="container">
         <div {...getRootProps({ className: "dropzone mb-2" })}>
           <Thumbs files={files} />
@@ -43,13 +42,13 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
           />
         )}
       </section>
-    </Context.Provider>
+    </>
   );
 };
 export default FileInput;
-const useFileInput = ({ initialFiles = [], fieldAttributes }) => {
-  const initialState = { files: initialFiles, totalProgress: null, cropper: false, blobsList: [] };
-  const [state, dispatch] = useReducer(fileInputReducer, initialState);
+
+const useFileInput = ({ fieldAttributes }) => {
+  const [state, dispatch] = useContext(FileInputStoreContext);
   const { files, totalProgress, cropper, blobsList } = state;
   const allowedImages = {
     mimeTypes: ["image/gif", "image/jpeg", "image/bmp", "image/png"],
@@ -59,7 +58,7 @@ const useFileInput = ({ initialFiles = [], fieldAttributes }) => {
   // dropzone plugin declaration
   const { getRootProps, getInputProps, open, inputRef } = useDropzone({
     accept: allowedImages.mimeTypes,
-    onDrop: acceptedFiles => dispatch({ type: "addFiles", payload: acceptedFiles }),
+    onDrop: acceptedFiles => dispatch({ type: types.addFiles, payload: acceptedFiles }),
     noClick: true,
     noKeyboard: true
   });
@@ -75,13 +74,13 @@ const useFileInput = ({ initialFiles = [], fieldAttributes }) => {
     });
     if (files.length < 1) {
       inputRef.current.blur();
-      dispatch({ type: "clearTotalProgress" });
+      dispatch({ type: types.clearProgress });
     }
   }, [files]);
 
   const setProgressBar = (progressEvent, fileName) => {
     const progress = Math.trunc((progressEvent.loaded / progressEvent.total) * 100);
-    dispatch({ type: "setProgress", progress, fileName });
+    dispatch({ type: types.setProgress, progress, fileName });
   };
 
   // extending the form framework functionality with dropzone's features
@@ -90,9 +89,8 @@ const useFileInput = ({ initialFiles = [], fieldAttributes }) => {
 
   return {
     files,
-    totalProgressState: [totalProgress, setProgressBar],
+    progressState: [totalProgress, setProgressBar],
     dropzone: [getRootProps, inputAttributes, open, inputRef],
-    reducer: [state, dispatch],
     cropper
   };
 };
