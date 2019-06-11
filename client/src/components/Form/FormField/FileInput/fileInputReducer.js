@@ -1,16 +1,12 @@
-import React, { useReducer, createContext } from "react";
-export const FileInputStoreContext = createContext({});
+import { fileInputActions } from "../../../../Store/actionTypes";
 
-const FileInputStore = ({ children }) => {
-  const reducer = useReducer(fileInputReducer, {
-    files: [],
-    totalProgress: null,
-    cropper: false,
-    blobsList: []
-  });
-  return (
-    <FileInputStoreContext.Provider value={reducer}>{children}</FileInputStoreContext.Provider>
-  );
+const { types } = fileInputActions;
+
+export const fileInputInitialState = {
+  files: [],
+  totalProgress: null,
+  cropper: false,
+  blobsList: []
 };
 
 const fileInputReducer = (state, action) => {
@@ -98,13 +94,4 @@ const fileInputReducer = (state, action) => {
       return state;
   }
 };
-export default FileInputStore;
-
-export const types = {
-  revokeObjectURLs: "revokeObjectURLs",
-  removeFile: "removeFile",
-  addFiles: "addFiles",
-  setProgress: "setProgress",
-  clearProgress: "clearProgress",
-  setCropper: "setCropper"
-};
+export default fileInputReducer;

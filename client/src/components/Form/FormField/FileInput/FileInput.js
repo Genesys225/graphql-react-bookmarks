@@ -1,8 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useContext } from "react";
 import { useDropzone } from "react-dropzone";
 import Thumbs from "./ImageInput/PreviewThumbs";
 import ProgressBar from "../../../ProgressBar/ProgressBar";
-import { types, FileInputStoreContext } from "./fileInputReducer";
+import { State, Dispatch } from "../../../../Store";
+import { fileInputActions } from "../../../../Store/actionTypes";
+const { types } = fileInputActions;
 
 const FileInput = ({ fieldAttributes, parentProps }) => {
   const { title, error, camelName } = parentProps;
@@ -48,8 +51,11 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
 export default FileInput;
 
 const useFileInput = ({ fieldAttributes }) => {
-  const [state, dispatch] = useContext(FileInputStoreContext);
-  const { files, totalProgress, cropper, blobsList } = state;
+  /**@todo add fallback to Form framework context */
+  // destructs fileInputState (state object) out of State context and renames it "state" (alias)
+  const { fileInputState: state } = useContext(State);
+  const dispatch = useContext(Dispatch);
+  const { files, totalProgress, cropper } = state;
   const allowedImages = {
     mimeTypes: ["image/gif", "image/jpeg", "image/bmp", "image/png"],
     maxWeight: null
@@ -66,7 +72,6 @@ const useFileInput = ({ fieldAttributes }) => {
   // this happens every time page loads and when files array is updated
   useEffect(// passing the dropzone change event to the form framework to validate and store
   () => {
-    console.log(blobsList);
     inputRef.current.focus();
     inputRef.current.Files = files;
     fieldAttributes.onChange({

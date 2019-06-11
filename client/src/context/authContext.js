@@ -7,7 +7,7 @@ export default React.createContext({
   tokenExpiration: null,
   logout: async (client, restartClient) => {
     await client.clearStore();
-    await window.localStorage.clear();
+    await localStorage.clear();
     await client.writeData({ data: clientState.defaults });
     restartClient();
     await console.log(clientState.defaults);

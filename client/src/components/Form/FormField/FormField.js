@@ -1,7 +1,6 @@
 import { camelize } from "../../../utils/utilities";
 import React, { useState } from "react";
 import FileInput from "./FileInput/FileInput";
-import FileInputStore from "./FileInput/fileInputReducer";
 
 export const FormField = props => {
   const [firstBlur, setFirstBlur] = useState(false);
@@ -40,7 +39,7 @@ export const FormField = props => {
     type: type ? type : deduceType(title)
   };
   //compares input.type equal to "number" or "range" and sets attributes and or defaults
-  if (["number", "range"].contains(fieldAttributes.type)) {
+  if (["number", "range"].indexOf(fieldAttributes.type) > -1) {
     fieldAttributes.min = props.min ? props.min : 0;
     fieldAttributes.max = props.max ? props.max : null;
   }
@@ -60,11 +59,7 @@ export const FormField = props => {
   switch (fieldAttributes.type) {
     case "file":
       fieldAttributes.className = `${fieldAttributes.className} mb-1`;
-      return (
-        <FileInputStore>
-          <FileInput fieldAttributes={fieldAttributes} parentProps={parentProps} />
-        </FileInputStore>
-      );
+      return <FileInput fieldAttributes={fieldAttributes} parentProps={parentProps} />;
     default:
       return (
         <div className="form-group mb-3">

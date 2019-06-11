@@ -1,3 +1,4 @@
+import fileInputReducer, { fileInputInitialState } from "./FormField/FileInput/fileInputReducer";
 import React, { useState, useRef } from "react";
 import { toInitialStateObj, camelize } from "../../utils/utilities";
 import "./Form.css";
@@ -116,3 +117,5 @@ const useForm = childrenFields => {
   };
   return { inputValues, formErrors, setFieldState };
 };
+
+export { fileInputReducer, fileInputInitialState };

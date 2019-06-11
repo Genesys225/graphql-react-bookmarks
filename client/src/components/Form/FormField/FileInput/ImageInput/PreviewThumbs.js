@@ -4,10 +4,14 @@ import styled from "styled-components";
 import { Scissors } from "styled-icons/icomoon";
 import { TrashAlt } from "styled-icons/fa-regular/TrashAlt";
 import ProgressBar from "../../../../ProgressBar/ProgressBar";
-import { types, FileInputStoreContext } from "../fileInputReducer";
+import { State, Dispatch } from "../../../../../Store";
+import { fileInputActions } from "../../../../../Store/actionTypes";
+const { types } = fileInputActions;
 
 const Thumbs = () => {
-  const [state, dispatch] = useContext(FileInputStoreContext);
+  // destructs fileInputState (state object) out of State context and renames it "state" (alias)
+  const { fileInputState: state } = useContext(State);
+  const dispatch = useContext(Dispatch);
   const { files, cropper } = state;
   const showCropper = ({ name: fileName }, state) =>
     dispatch({ type: types.setCropper, fileName, payload: state });
@@ -31,7 +35,7 @@ const Thumbs = () => {
   useEffect(() => {
     // Make sure to revoke the data uris to avoid memory leaks
     return () => dispatch({ type: types.revokeObjectURLs });
-  }, []);
+  }, [dispatch]);
 
   const thumbs = files.map(file => (
     <React.Fragment key={file.name}>
