@@ -3,8 +3,8 @@ import React, { useEffect, useContext } from "react";
 import { useDropzone } from "react-dropzone";
 import Thumbs from "./ImageInput/PreviewThumbs";
 import ProgressBar from "../../../ProgressBar/ProgressBar";
-import { State, Dispatch } from "../../../../Store";
-import { fileInputActions } from "../../../../Store/actionTypes";
+import { State, Dispatch } from "../../Store";
+import { fileInputActions } from "../../Store/actionTypes";
 const { types } = fileInputActions;
 
 const FileInput = ({ fieldAttributes, parentProps }) => {
@@ -26,8 +26,8 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
         <div {...getRootProps({ className: "dropzone mb-2" })}>
           <Thumbs files={files} />
         </div>
-        <div className="form-actions custom-file mb-3">
-          <input {...inputAttributes} onClick={open} onBlur={blurHandler} />
+        <div className="form-actions custom-file mb-3" onClick={open}>
+          <input {...inputAttributes} onBlur={blurHandler} />
           <label htmlFor={camelName} className="custom-file-label">
             {title}
           </label>
@@ -68,7 +68,6 @@ const useFileInput = ({ fieldAttributes }) => {
     noClick: true,
     noKeyboard: true
   });
-
   // this happens every time page loads and when files array is updated
   useEffect(// passing the dropzone change event to the form framework to validate and store
   () => {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { LOGIN, SIGN_UP } from "../Gql/queries/";
 import { useApolloClient, useMutation } from "react-apollo-hooks";
-import Form, { FormField } from "../components/Form/Form";
+import Form, { FormField } from "../components/Form";
 
 import "./Auth.css";
 
@@ -13,20 +13,20 @@ const AuthPage = () => {
     fetchPolicy: "no-cache"
   });
 
-  const submitHandler = async creds => {
+  const submitHandler = async ({ email: { value: email }, password: { value: password } }) => {
     if (isLogin) {
       const {
         data: { login: authState }
       } = await client.query({
         query: LOGIN,
-        variables: creds,
+        variables: { email, password },
         fetchPolicy: "no-cache"
       });
       if (authState) {
         const data = { authState: { ...authState, id: 1, __typename: "Auth" } };
         client.writeData({ data });
       }
-    } else signUpReq({ variables: creds });
+    } else signUpReq({ variables: { email, password } });
   };
   return (
     <>

@@ -3,7 +3,7 @@ import { useQuery, useMutation, useApolloClient } from "react-apollo-hooks";
 import Modal from "../Modal/Modal";
 import { SELECTED_EVENT, BOOK_EVENT, SET_USER_BOOKINGS } from "../../Gql/queries";
 import authContext from "../../context/authContext";
-import Form, { FormField } from "../Form/Form";
+import Form, { FormField } from "../Form";
 import axios from "axios";
 
 export default function BookEventComp() {
@@ -35,9 +35,9 @@ export default function BookEventComp() {
     nullSelectedEvent();
   };
 
-  const uploadFile = ({ fileUpload }, setProgressBar) => {
+  const uploadFile = ({ fileUpload: { value: files } }, setProgressBar) => {
     try {
-      fileUpload.forEach(async file => {
+      files.forEach(async file => {
         const formData = new FormData();
         formData.append("fileUpload", file);
         const res = await axios.post("http://localhost:5000/api/uploads", formData, {

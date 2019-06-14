@@ -14,7 +14,7 @@ const cache = new InMemoryCache({
     }
   },
   dataIdFromObject: object => {
-    console.log(object, object.id);
+    console.log(object.id, object);
     return object.id;
   }
 });

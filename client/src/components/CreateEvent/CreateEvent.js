@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { CREATE_EVENT } from "../../Gql/queries";
 import { useMutation } from "react-apollo-hooks";
 import Modal from "../Modal/Modal";
-import Form, { FormField } from "../Form/Form";
+import Form, { FormField } from "../Form";
 import authContext from "../../context/authContext";
 
 export default function CreateEventComp(props) {
@@ -26,10 +26,15 @@ export default function CreateEventComp(props) {
 
   // the actual call to the mutation function
   // after getting the details from the form
-  const createEventHandler = async newEventDetails => {
+  const createEventHandler = async ({ title, description, price, date }) => {
     createEventReq({
       mutation: CREATE_EVENT,
-      variables: newEventDetails
+      variables: {
+        title: title.value,
+        description: description.value,
+        price: price.value,
+        date: date.value
+      }
     });
     openCreateEventModal(false);
   };

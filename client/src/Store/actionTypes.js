@@ -1,11 +1,11 @@
-export const fileInputActions = {
+/** @example export const reducerNameActions = {
+ *            types: {
+ *              actinName: "actionName"
+ *            }
+ *           } */
+
+export const reducerNameActions = {
   types: {
-    revokeObjectURLs: "revokeObjectURLs",
-    removeFile: "removeFile",
-    addFiles: "addFiles",
-    setProgress: "setProgress",
-    clearProgress: "clearProgress",
-    setCropper: "setCropper"
+    actinName: "actionName"
   }
 };
-Object.freeze(fileInputActions);

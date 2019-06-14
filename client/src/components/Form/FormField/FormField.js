@@ -1,73 +1,62 @@
 import { camelize } from "../../../utils/utilities";
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import FileInput from "./FileInput/FileInput";
-
+import { State, Dispatch } from "../Store";
+/** @type {React.component}
+ * @description to be used with Form framework  */
 export const FormField = props => {
-  const [firstBlur, setFirstBlur] = useState(false);
-  const [error, setError] = useState(false);
-  const camelName = camelize(props.children.toString());
-
-  const validate = target =>
+  const fieldName = camelize(props.children.toString());
+  const {
+    Form: { [fieldName]: state }
+  } = useContext(State);
+  const dispatch = useContext(Dispatch);
+  const validate = fieldTarget =>
     // this only returns errors if they are present else leaves error undefined
-    setError(props.setFieldState(camelName, target));
+    dispatch({ type: "setFields", fieldName, fieldTarget });
 
-  const changeEventHandler = ({ target }) => validate(target);
+  if (!state) return null;
+  const { error, fieldAttributes } = state;
+  const handleChange = ({ target }) => validate(target);
 
-  const blurEventHandler = ({ target }) => {
-    setFirstBlur(true);
-    console.log(target.Files, "BLUR");
+  const handleBlur = ({ target }) => {
+    dispatch({ type: "setFirstBlur", payload: true });
     validate(target);
   };
 
-  // const focusEventHandler = () => setFirstBlur(false);
+  if (!fieldAttributes) return null;
+  const { title } = fieldAttributes;
 
-  const { children: title, type } = props;
-  /**
-   * these are the attributes of the input field
-   * @type {React.props} - In tag text passed by the FormField the JSX DOM
-   */
-  const fieldAttributes = {
-    className: `form-control${error && firstBlur ? " is-invalid" : ""}`,
-    onBlur: blurEventHandler,
-    onChange: changeEventHandler,
-    // onFocus: focusEventHandler,
-    id: camelName,
-    name: camelName,
-    required: true,
-    minLength: props.minLength && props.minLength,
-    maxLength: props.maxLength && props.maxLength,
-    type: type ? type : deduceType(title)
-  };
+  const filteredAttributes = { ...fieldAttributes }; // filterObject(fieldAttributes, "title");
+  delete filteredAttributes.title;
+  filteredAttributes.onChange = handleChange;
+  filteredAttributes.onBlur = handleBlur;
+
   //compares input.type equal to "number" or "range" and sets attributes and or defaults
-  if (["number", "range"].indexOf(fieldAttributes.type) > -1) {
-    fieldAttributes.min = props.min ? props.min : 0;
-    fieldAttributes.max = props.max ? props.max : null;
-  }
+
   /** additional parent props to be consumed by field children
    * @type {React.props}
    */
-  const parentProps = {
-    title,
-    error,
-    camelName,
-    onConfirm: props.onConfirm
-  };
   /** switch statement for special fields, defaults
    * to a turnery of regular input or text area
    * @return {React.component || HTML}
    */
-  switch (fieldAttributes.type) {
+  switch (filteredAttributes.type) {
     case "file":
-      fieldAttributes.className = `${fieldAttributes.className} mb-1`;
-      return <FileInput fieldAttributes={fieldAttributes} parentProps={parentProps} />;
+      const parentProps = {
+        title,
+        error,
+        fieldName,
+        onConfirm: props.onConfirm
+      };
+      return <FileInput fieldAttributes={filteredAttributes} parentProps={parentProps} />;
     default:
       return (
         <div className="form-group mb-3">
-          <label htmlFor={camelName}>{title}</label>
+          <label htmlFor={fieldName}>{title ? title : null}</label>
           {props.rows ? (
-            <textarea {...fieldAttributes} rows={props.rows} />
+            <textarea {...filteredAttributes} rows={props.rows} />
           ) : (
-            <input {...fieldAttributes} />
+            <input {...filteredAttributes} />
           )}
           <div className="invalid-feedback m-0" style={{ height: "0px" }}>
             {error}
@@ -81,15 +70,3 @@ export const FormField = props => {
  * this is trying to deduce the input type from the passed tag body text
  * @param {String} - In tag text passed by the FormField, in the Form parent JSX DOM
  */
-const deduceType = title => {
-  const lowerCaseTitle = title.toLowerCase();
-  const hasString = string => lowerCaseTitle.includes(string); // returns cool false weather
-  if (hasString("email")) return "email";
-  else if (hasString("pass")) return "password";
-  else if (hasString("date")) return "date";
-  else if (hasString("price")) return "number";
-  else if (hasString("phone")) return "tel";
-  else if (hasString("tel")) return "tel";
-  else if (hasString("file")) return "file";
-  else return "text";
-};

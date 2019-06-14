@@ -7,7 +7,7 @@ import AuthContext from "./context/authContext";
 import Spinner from "./components/Spinner/Spinner";
 import { useApolloClient } from "react-apollo-hooks";
 import RestartClientContext from "./context/RestartClientContext";
-import Store from "./Store";
+// import Store from "./Store";
 
 // lazy allowes to wait for import untill triggered by the render method
 const AuthPage = lazy(() => import("./pages/Auth"));
@@ -33,24 +33,24 @@ function App() {
   auth = { ...authContext, ...auth };
   return (
     <BrowserRouter>
-      <Store>
-        <AuthContext.Provider value={{ auth }}>
-          <MainNavigation />
-          <main className="main-content">
-            <Suspense fallback={<Spinner />}>
-              <Switch>
-                {!token && document.removeEventListener("click", documentClick)}
-                {token && <Redirect from="/" to="/events" exact />}
-                {token && <Redirect from="/auth" to="/events" exact />}
-                {!token && <Route path="/auth" component={AuthPage} />}
-                <Route path="/events" component={EventsPage} />
-                {token && <Route path="/bookings" component={BookingsPage} />}
-                {!token && <Redirect to="/auth" exact />} {/*// if not logged in and not events*/}
-              </Switch>
-            </Suspense>
-          </main>
-        </AuthContext.Provider>
-      </Store>
+      {/* <Store> */}
+      <AuthContext.Provider value={{ auth }}>
+        <MainNavigation />
+        <main className="main-content">
+          <Suspense fallback={<Spinner />}>
+            <Switch>
+              {!token && document.removeEventListener("click", documentClick)}
+              {token && <Redirect from="/" to="/events" exact />}
+              {token && <Redirect from="/auth" to="/events" exact />}
+              {!token && <Route path="/auth" component={AuthPage} />}
+              <Route path="/events" component={EventsPage} />
+              {token && <Route path="/bookings" component={BookingsPage} />}
+              {!token && <Redirect to="/auth" exact />} {/*// if not logged in and not events*/}
+            </Switch>
+          </Suspense>
+        </main>
+      </AuthContext.Provider>
+      {/* </Store> */}
     </BrowserRouter>
   );
 }

@@ -1,6 +1,8 @@
-import { fileInputActions } from "../../../../Store/actionTypes";
+import { fileInputActions } from "../../Store/actionTypes";
 
 const { types } = fileInputActions;
+
+const init = initialState => Object.assign({}, fileInputInitialState, initialState);
 
 export const fileInputInitialState = {
   files: [],
@@ -74,7 +76,7 @@ const fileInputReducer = (state, action) => {
       });
       return {
         ...state,
-        files: updatedCropper,
+        updatedCropper,
         cropper: action.payload
       };
     case types.revokeObjectURLs:
@@ -88,8 +90,11 @@ const fileInputReducer = (state, action) => {
       }
       return {
         ...state,
-        blobsList: clearSuccessful ? [] : state.blobsList
+        blobsList: clearSuccessful ? [] : state.blobsList,
+        files: []
       };
+    case types.initState:
+      return init(action.payload);
     default:
       return state;
   }

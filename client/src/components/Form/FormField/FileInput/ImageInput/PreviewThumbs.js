@@ -4,8 +4,8 @@ import styled from "styled-components";
 import { Scissors } from "styled-icons/icomoon";
 import { TrashAlt } from "styled-icons/fa-regular/TrashAlt";
 import ProgressBar from "../../../../ProgressBar/ProgressBar";
-import { State, Dispatch } from "../../../../../Store";
-import { fileInputActions } from "../../../../../Store/actionTypes";
+import { State, Dispatch } from "../../../Store";
+import { fileInputActions } from "../../../Store/actionTypes";
 const { types } = fileInputActions;
 
 const Thumbs = () => {

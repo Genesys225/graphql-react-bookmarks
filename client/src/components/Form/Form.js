@@ -1,22 +1,42 @@
-import fileInputReducer, { fileInputInitialState } from "./FormField/FileInput/fileInputReducer";
-import React, { useState, useRef } from "react";
-import { toInitialStateObj, camelize } from "../../utils/utilities";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useRef, useContext, useEffect } from "react";
+import { State, Dispatch } from "./Store";
 import "./Form.css";
-import formValidation from "./formValidation";
-
+/** @type { Form: React.component }
+ * it requires FormStore to be a (DOM) parent to provide the Store  */
 const Form = props => {
   const formRef = useRef(null);
+  const { Form } = useContext(State);
+  const dispatch = useContext(Dispatch);
+
+  useEffect(() => dispatch({ type: "reset", props }), []);
+
   let { children: childrenFields } = props;
+  if (!Array.isArray(props.children)) childrenFields = [props.children];
+
+  const inputsState = () => {
+    let derivedState = {};
+    for (const inputState in Form) {
+      derivedState = {
+        ...derivedState,
+        [inputState]: {
+          value: Form[inputState].value,
+          error: Form[inputState].error
+        }
+      };
+    }
+    return derivedState;
+  };
   // this checks if only one field is passed and wraps it in an array if it is
-  if (!Array.isArray(childrenFields)) childrenFields = [childrenFields];
-  const { inputValues, formErrors, setFieldState } = useForm(childrenFields);
 
   const onConfirm = (e, setProgress) => {
-    if (!formErrors) {
+    if (!error) {
       e.preventDefault();
-      props.submitForm(inputValues, setProgress);
+      props.submitForm(inputsState(), setProgress);
     }
   };
+
+  const { error } = Form;
 
   const onAltAction = e => {
     e.preventDefault();
@@ -27,17 +47,12 @@ const Form = props => {
   };
 
   /** this map clones the form children (FormField)s and adds some key properties
-   * @param {FormField[]}
-   * @returns {FormField[]} - extended with form methods:
-   * @method {setFieldState} and
+   * @param FormField[]
+   * @returns [FormField] where each field is extended with:
    * @method {onConfirm} - Form control, fired when confirm button is pressed
    */
   const formfieldsArray = childrenFields.map((field, index) =>
-    React.cloneElement(
-      field,
-      { ...field.props, setFieldState, key: index, onConfirm },
-      field.props.children
-    )
+    React.cloneElement(field, { ...field.props, key: index, onConfirm }, field.props.children)
   );
 
   return (
@@ -66,56 +81,5 @@ const Form = props => {
     </form>
   );
 };
-/** @type {React.component} */
+
 export default Form;
-/** @type {React.component} - to be used with this Form framework child  */
-export { FormField } from "./FormField/FormField";
-
-const useForm = childrenFields => {
-  const [formErrors, setFormErrors] = useState(true);
-
-  /**  this initializes the form fields state object using a function:
-   * @function {toInitialStateObj()} receives
-   * @param {FormField[]} and
-   * @returns {Object} with the fields text as keys and values of null
-   */
-  const [inputValues, setInputValues] = useState(
-    toInitialStateObj(childrenFields.map(childField => camelize(childField.props.children)))
-  );
-  /** setting the field state function, it is passed to the fields components to be used there
-   * @param {input.name, input}
-   * @returns {{error} or "nothing"}
-   */
-  const setFieldState = (fieldName, fieldTarget) => {
-    const prevState = inputValues;
-    // this is the validation step, it returns an error object or false
-    const error = formValidation(fieldTarget);
-    if (error) {
-      // this is to allow fake submission, in order to trigger HTML5 validation message
-      setInputValues({ ...prevState, [fieldName]: null });
-      return error;
-    }
-    if (Object.values(inputValues).indexOf(null) > -1) setFormErrors(true);
-    else setFormErrors(false);
-
-    // sets email input to lowercase (for convention)
-    if (fieldName === "email")
-      setInputValues({
-        ...prevState,
-        [fieldName]: fieldTarget.value.toLowerCase()
-      });
-    // sets file inputs
-    else if (fieldTarget.type === "file") {
-      const { Files } = fieldTarget;
-      setInputValues({
-        ...prevState,
-        [fieldName]: Files
-      });
-    }
-    // this is the actual state set
-    else setInputValues({ ...prevState, [fieldName]: fieldTarget.value });
-  };
-  return { inputValues, formErrors, setFieldState };
-};
-
-export { fileInputReducer, fileInputInitialState };
