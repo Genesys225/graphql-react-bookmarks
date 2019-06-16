@@ -17,4 +17,4 @@ export { Form };
 /** @type {React.component} - to be used with this Form framework child
  *  @description After form is initiated it will proved
  */
-export { FormStore, State, Dispatch };
+export const formStore = { FormStore, State, Dispatch };

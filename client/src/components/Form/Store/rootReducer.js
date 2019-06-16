@@ -5,7 +5,7 @@ import formReducer, { formInitialState } from "../formReducer";
 /** uses combineReducers */
 const rootReducer = combineReducers({
   /** form state */
-  Form: formReducer,
+  formState: formReducer,
   fileInputState: fileInputReducer
 });
 
@@ -14,6 +14,6 @@ export default rootReducer;
 const combineInitialStates = (...rest) => Object.assign(...rest);
 
 export const initialState = combineInitialStates({
-  Form: formInitialState,
+  formState: formInitialState,
   fileInputState: fileInputInitialState
 });

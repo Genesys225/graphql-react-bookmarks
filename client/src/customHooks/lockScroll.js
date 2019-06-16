@@ -1,11 +1,11 @@
 const lockScroll = () => {
   const modalElement = document.getElementsByClassName("modal show")[0];
-
+  const defaultScrollElement = modalElement ? modalElement : window;
   const enableScrollLock = () => {
-    modalElement.style.overflowY = "hidden";
+    defaultScrollElement.style.overflowY = "hidden";
   };
   const disbleScrollLock = () => {
-    modalElement.style.overflowY = "overlay";
+    defaultScrollElement.style.overflowY = "overlay";
   };
 
   return {
@@ -13,5 +13,4 @@ const lockScroll = () => {
     onMouseLeave: disbleScrollLock
   };
 };
-
 export default lockScroll;

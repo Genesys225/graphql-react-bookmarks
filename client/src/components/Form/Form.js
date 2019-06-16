@@ -1,15 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useRef, useContext, useEffect } from "react";
-import { State, Dispatch } from "./Store";
+import { State, Dispatch, formActions } from "./Store";
 import "./Form.css";
-/** @type { Form: React.component }
+const { types } = formActions;
+/** @type { formState: React.component }
  * it requires FormStore to be a (DOM) parent to provide the Store  */
 const Form = props => {
   const formRef = useRef(null);
-  const { Form } = useContext(State);
+  const { formState } = useContext(State);
   const dispatch = useContext(Dispatch);
 
-  useEffect(() => dispatch({ type: "reset", props }), []);
+  useEffect(() => dispatch({ type: types.reset, props }), []);
 
   let { children: childrenFields } = props;
   if (!Array.isArray(props.children)) childrenFields = [props.children];
@@ -20,15 +21,13 @@ const Form = props => {
       derivedState = {
         ...derivedState,
         [inputState]: {
-          value: Form[inputState].value,
-          error: Form[inputState].error
+          value: formState[inputState].value,
+          error: formState[inputState].error
         }
       };
     }
     return derivedState;
   };
-  // this checks if only one field is passed and wraps it in an array if it is
-
   const onConfirm = (e, setProgress) => {
     if (!error) {
       e.preventDefault();
@@ -47,7 +46,7 @@ const Form = props => {
   };
 
   /** this map clones the form children (FormField)s and adds some key properties
-   * @param FormField[]
+   * @param [FormField]
    * @returns [FormField] where each field is extended with:
    * @method {onConfirm} - Form control, fired when confirm button is pressed
    */

@@ -3,7 +3,6 @@ import { SINGLE_EVENT } from "./eventsQueries";
 
 const SINGLE_BOOKING = gql`
   fragment detailedBooking on Booking {
-    id
     updatedAt
     createdAt
     __typename

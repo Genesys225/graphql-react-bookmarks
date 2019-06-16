@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { Emoji } from "emoji-mart";
 import React, { useEffect, useContext } from "react";
 import { useDropzone } from "react-dropzone";
 import Thumbs from "./ImageInput/PreviewThumbs";
 import ProgressBar from "../../../ProgressBar/ProgressBar";
-import { State, Dispatch } from "../../Store";
-import { fileInputActions } from "../../Store/actionTypes";
+import { State, Dispatch, fileInputActions } from "../../Store";
 const { types } = fileInputActions;
 
 const FileInput = ({ fieldAttributes, parentProps }) => {

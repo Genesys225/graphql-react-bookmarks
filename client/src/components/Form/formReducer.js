@@ -55,6 +55,7 @@ const init = props => {
     error: false,
     firstBlur: false
   };
+  // this checks if only one field is passed and wraps it in an array if it is
   const tempFields = !Array.isArray(props.children) ? [props.children] : props.children;
   const childrenFields = tempFields.map(field => {
     return { title: field.props.children, props: field.props };
@@ -78,6 +79,7 @@ export const formInitialState = {};
  */
 const fieldAttributes = (camelName, props, childFieldText) => {
   const type = props.type ? props.type : deduceType(childFieldText);
+  //compares input.type equal to "number" or "range" and sets attributes and or defaults
   const returnObj =
     ["number", "range"].indexOf(type) > -1
       ? {
@@ -97,7 +99,10 @@ const fieldAttributes = (camelName, props, childFieldText) => {
     ...returnObj
   };
 };
-
+/**
+ * this is trying to deduce the input type from the passed tag body text
+ * @param String In tag text passed by the FormField, in the parent Form JSX DOM
+ */
 const deduceType = title => {
   const lowerCaseTitle = title.toLowerCase();
   const hasString = string => lowerCaseTitle.includes(string); // returns cool false weather

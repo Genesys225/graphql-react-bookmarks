@@ -1,5 +1,6 @@
 import React, { createContext, useReducer } from "react";
 import rootReducer, { initialState } from "./rootReducer";
+import { formActions, fileInputActions } from "./actionTypes";
 
 export const State = createContext();
 export const Dispatch = createContext();
@@ -15,3 +16,4 @@ const FormStore = props => {
 };
 
 export default FormStore;
+export { formActions, fileInputActions };

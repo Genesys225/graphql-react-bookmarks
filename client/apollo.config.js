@@ -1,13 +1,11 @@
 module.exports = {
   service: {
     service: {
-      name: "server",
-      url: "http://localhost:5000/graphql", // defaults to http://localhost:4000
-      //   headers: {
-      //     // optional
-      //     authorization: "Bearer null"
-      //   },
-      skipSSLValidation: true // optional, disables SSL validation check
-    }
+      name: "Genesys225-1393",
+      url: "http://localhost:5000/graphql"
+    },
+    skipSSLValidation: true,
+    excludes: ["node_modules/**/*"],
+    includes: ["src/**/*.{ts,gql,tsx,js,jsx,graphql}"]
   }
 };
