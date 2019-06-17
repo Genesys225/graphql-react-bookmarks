@@ -7,15 +7,12 @@ const { types } = formActions;
  * @description to be used with Form framework  */
 export const FormField = props => {
   const fieldName = camelize(props.children.toString());
-  const {
-    formState: { [fieldName]: state }
-  } = useContext(State);
   const dispatch = useContext(Dispatch);
-  const validate = fieldTarget =>
-    // this only returns errors if they are present else leaves error undefined
-    dispatch({ type: types.setFields, fieldName, fieldTarget });
+  const { formState } = useContext(State);
+  const { inputFields } = formState;
+  const state = inputFields[props.index];
+  const validate = fieldTarget => dispatch({ type: types.setField, fieldName, fieldTarget });
 
-  if (!state) return null;
   const { error, fieldAttributes } = state;
   const handleChange = ({ target }) => validate(target);
 
@@ -33,13 +30,11 @@ export const FormField = props => {
   filteredAttributes.onBlur = handleBlur;
   /** switch statement for special fields, defaults
    * to a turnery of regular input or text area
-   * @return {React.component || HTML}
+   * @returns {React.component || HTML}
    */
   switch (filteredAttributes.type) {
     case "file":
-      /** additional parent props to be consumed by field children
-       * @type {React.props}
-       */
+      /** additional parent props to be used by field elements */
       const parentProps = {
         title,
         error,

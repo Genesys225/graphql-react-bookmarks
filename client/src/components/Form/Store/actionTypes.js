@@ -13,7 +13,7 @@ Object.freeze(fileInputActions);
 
 export const formActions = {
   types: {
-    setFields: "setFields",
+    setField: "setField",
     setFirstBlur: "setFirstBlur",
     reset: "reset"
   }

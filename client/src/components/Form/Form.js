@@ -1,13 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useRef, useContext, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { State, Dispatch, formActions } from "./Store";
 import "./Form.css";
 const { types } = formActions;
-/** @type { formState: React.component }
+/** @type { FormFrameWork: React.component }
  * it requires FormStore to be a (DOM) parent to provide the Store  */
 const Form = props => {
-  const formRef = useRef(null);
   const { formState } = useContext(State);
+  const { inputFields } = formState;
   const dispatch = useContext(Dispatch);
 
   useEffect(() => dispatch({ type: types.reset, props }), []);
@@ -15,33 +15,18 @@ const Form = props => {
   let { children: childrenFields } = props;
   if (!Array.isArray(props.children)) childrenFields = [props.children];
 
-  const inputsState = () => {
-    let derivedState = {};
-    for (const inputState in Form) {
-      derivedState = {
-        ...derivedState,
-        [inputState]: {
-          value: formState[inputState].value,
-          error: formState[inputState].error
-        }
-      };
-    }
-    return derivedState;
-  };
+  const { error } = formState;
+
   const onConfirm = (e, setProgress) => {
     if (!error) {
       e.preventDefault();
-      props.submitForm(inputsState(), setProgress);
+      props.submitForm(inputsState(inputFields), setProgress);
     }
   };
 
-  const { error } = Form;
-
   const onAltAction = e => {
     e.preventDefault();
-    /**  this is to allow form reset
-     * @todo  provide api*/
-    formRef.current.reset();
+    dispatch({ type: types.reset, props });
     props.altAction();
   };
 
@@ -51,7 +36,11 @@ const Form = props => {
    * @method {onConfirm} - Form control, fired when confirm button is pressed
    */
   const formfieldsArray = childrenFields.map((field, index) =>
-    React.cloneElement(field, { ...field.props, key: index, onConfirm }, field.props.children)
+    React.cloneElement(
+      field,
+      { ...field.props, key: index, index, onConfirm },
+      field.props.children
+    )
   );
 
   return (
@@ -60,9 +49,9 @@ const Form = props => {
       onSubmit={e => e.preventDefault()}
       className={props.className}
       id="defaultForm"
-      ref={formRef}
     >
-      {formfieldsArray}
+      {inputFields && formfieldsArray}
+      {/* if both butttons are disbled dont render the form actions container */}
       {(props.canConfirm || props.canAltAction) && (
         <div className="form-actions mt-5">
           {props.canConfirm && (
@@ -82,3 +71,15 @@ const Form = props => {
 };
 
 export default Form;
+
+const inputsState = inputFields =>
+  inputFields.reduce((result, inputState, index) => {
+    const { name } = inputState.fieldAttributes;
+    return {
+      ...result,
+      [name]: {
+        value: inputFields[index].value,
+        error: inputFields[index].error
+      }
+    };
+  }, {});

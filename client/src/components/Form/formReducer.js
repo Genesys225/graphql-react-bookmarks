@@ -3,13 +3,15 @@ import formValidation from "./formValidation";
 import { camelize } from "../../utils/utilities";
 
 const { types } = formActions;
+let fieldsEnum = {};
 
 const formReducer = (state, action) => {
   switch (action.type) {
-    case types.setFields:
+    case types.setField:
       const { fieldName, fieldTarget } = action;
-      const { fieldAttributes } = state[fieldName];
-      const { className } = state[fieldName].fieldAttributes;
+      const fieldIndex = fieldsEnum[fieldName];
+      const { fieldAttributes } = state.inputFields[fieldIndex];
+      const { className } = fieldAttributes;
       const error = formValidation(fieldTarget);
       let value = fieldTarget.value;
       // this is to allow fake submission, in order to trigger HTML5 validation message
@@ -19,20 +21,23 @@ const formReducer = (state, action) => {
       // sets file inputs
       else if (fieldTarget.type === "file") value = fieldTarget.Files;
       // this is the actual state set
-      return {
-        ...state,
-        [fieldName]: {
-          fieldAttributes: {
-            ...fieldAttributes,
-            className: error
+      const updatedFields = state.inputFields;
+      updatedFields[fieldIndex] = {
+        fieldAttributes: {
+          ...fieldAttributes,
+          className:
+            error && state.firstBlur
               ? className.indexOf("invalid") === -1
                 ? className.concat(" is-invalid")
                 : className
               : className.split(" is-invalid")[0]
-          },
-          error: error ? error : false,
-          value
         },
+        error: error && state.firstBlur ? error : false,
+        value
+      };
+      return {
+        ...state,
+        inputFields: updatedFields,
         error: !!error
       };
 
@@ -50,26 +55,31 @@ const formReducer = (state, action) => {
 export default formReducer;
 
 const init = props => {
-  console.log("init runing");
-  const rootProps = {
+  // checking if only one field is passed and wraps it in an array if it is true
+  const tempFields = !Array.isArray(props.children) ? [props.children] : props.children;
+  const childrenFields = tempFields.map(field => ({
+    title: field.props.children,
+    props: field.props
+  }));
+
+  fieldsEnum = childrenFields.reduce(
+    (result, { title }, index) => ({ ...result, [camelize(title)]: +index }),
+    {}
+  );
+
+  const initialState = {
+    inputFields: childrenFields.map(field =>
+      // creates a field initial state object wit a nested attributes object
+      ({
+        fieldAttributes: fieldAttributes(camelize(field.title), field.props, field.title),
+        value: null,
+        error: false
+      })
+    ),
     error: false,
     firstBlur: false
   };
-  // this checks if only one field is passed and wraps it in an array if it is
-  const tempFields = !Array.isArray(props.children) ? [props.children] : props.children;
-  const childrenFields = tempFields.map(field => {
-    return { title: field.props.children, props: field.props };
-  });
-  const initialState = childrenFields.reduce((result, field) => {
-    const camelName = camelize(field.title);
-    return Object.assign({}, result, {
-      [camelName]: {
-        fieldAttributes: fieldAttributes(camelName, field.props, field.title),
-        value: null,
-        error: false
-      }
-    });
-  }, rootProps);
+
   return initialState;
 };
 export const formInitialState = {};
