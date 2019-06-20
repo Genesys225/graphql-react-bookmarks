@@ -1,24 +1,29 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Emoji } from "emoji-mart";
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 import Thumbs from "./ImageInput/PreviewThumbs";
 import ProgressBar from "../../../ProgressBar/ProgressBar";
-import { State, Dispatch, fileInputActions } from "../../Store";
+import { State, Dispatch, fileInputActions, formActions } from "../../Store";
+import useWhyDidYouUpdate from "../../../../customHooks/whyDidUrender";
 const { types } = fileInputActions;
 
-const FileInput = ({ fieldAttributes, parentProps }) => {
+const FileInput = props => {
+  const { fieldAttributes, parentProps } = useMemo(() => props, [props]);
+  useWhyDidYouUpdate("Counter", props);
   const { title, error, camelName } = parentProps;
 
-  const { files, progressState, dropzone, cropper } = useFileInput({
+  const { files, progressState, dropzone, cropper, dispatch } = useFileInput({
     fieldAttributes
   });
   const [totalProgress, setProgressBar] = progressState;
-  const [getRootProps, inputAttributes, open, inputRef] = dropzone;
+  const [getRootProps, inputAttributes, open] = dropzone;
 
+  const clickHandler = () => {
+    open();
+    dispatch({ type: formActions.types.setFirstBlur, payload: true });
+  };
   const handleUpload = e => parentProps.onConfirm(e, setProgressBar);
-
-  const blurHandler = () => fieldAttributes.onBlur({ target: inputRef.current });
 
   return (
     <>
@@ -26,8 +31,8 @@ const FileInput = ({ fieldAttributes, parentProps }) => {
         <div {...getRootProps({ className: "dropzone mb-2" })}>
           <Thumbs files={files} />
         </div>
-        <div className="form-actions custom-file mb-3" onClick={open}>
-          <input {...inputAttributes} onBlur={blurHandler} />
+        <div className="form-actions custom-file mb-3" onClick={clickHandler}>
+          <input {...inputAttributes} onBlur={props.onBlur} />
           <label htmlFor={camelName} className="custom-file-label">
             {title}
           </label>
@@ -53,14 +58,14 @@ export default FileInput;
 const useFileInput = ({ fieldAttributes }) => {
   /**@todo add fallback to Form framework context */
   // destructs fileInputState (state object) out of State context and renames it "state" (alias)
-  const { fileInputState: state } = useContext(State);
+  const { fileInputState: state, formState } = useContext(State);
   const dispatch = useContext(Dispatch);
   const { files, totalProgress, cropper } = state;
   const allowedImages = {
     mimeTypes: ["image/gif", "image/jpeg", "image/bmp", "image/png"],
     maxWeight: null
   };
-
+  console.log(formState);
   // dropzone plugin declaration
   const { getRootProps, getInputProps, open, inputRef } = useDropzone({
     accept: allowedImages.mimeTypes,
@@ -68,18 +73,16 @@ const useFileInput = ({ fieldAttributes }) => {
     noClick: true,
     noKeyboard: true
   });
+
   // this happens every time page loads and when files array is updated
   useEffect(// passing the dropzone change event to the form framework to validate and store
   () => {
-    inputRef.current.focus();
-    inputRef.current.Files = files;
-    fieldAttributes.onChange({
-      target: inputRef.current
-    });
-    if (files.length < 1) {
+    if (files.length > 0) {
+      inputRef.current.focus();
+      inputRef.current.Files = files;
       inputRef.current.blur();
-      dispatch({ type: types.clearProgress });
-    }
+    } else
+      inputRef.current.Files && dispatch({ type: types.addFiles, payload: inputRef.current.Files });
   }, [files]);
 
   const setProgressBar = (progressEvent, fileName) => {
@@ -94,7 +97,8 @@ const useFileInput = ({ fieldAttributes }) => {
   return {
     files,
     progressState: [totalProgress, setProgressBar],
-    dropzone: [getRootProps, inputAttributes, open, inputRef],
-    cropper
+    dropzone: [getRootProps, inputAttributes, open],
+    cropper,
+    dispatch
   };
 };

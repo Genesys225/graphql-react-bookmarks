@@ -12,11 +12,11 @@ const cache = new InMemoryCache({
         return getCacheKey({ __typename: "Booking", id: args });
       }
     }
-  },
-  dataIdFromObject: object => {
-    console.log(object.id, object);
-    return object.id;
   }
+  // dataIdFromObject: object => {
+  //   console.log(object.id, object);
+  //   return object.id;
+  // }
 });
 
 const initClient = async () => {

@@ -55,7 +55,11 @@ export default function BookEventComp() {
   const modalCancelHandler = () => nullSelectedEvent();
 
   const nullSelectedEvent = () => client.writeData({ data: { selectedEvent: null } });
-
+  const mockFiles = [
+    "http://localhost:5000/uploads/fileUpload/undefined/fileUpload-1560706286915.jpg",
+    "http://localhost:5000/uploads/fileUpload/undefined/fileUpload-1560716660760.jpg",
+    "http://localhost:5000/uploads/fileUpload/undefined/fileUpload-1560716660760.jpg"
+  ];
   return (
     <Modal
       id="bookEventModal"

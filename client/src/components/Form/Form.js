@@ -3,6 +3,7 @@ import React, { useContext, useEffect } from "react";
 import { State, Dispatch, formActions } from "./Store";
 import "./Form.css";
 const { types } = formActions;
+let firstBlur = false;
 /** @type { FormFrameWork: React.component }
  * it requires FormStore to be a (DOM) parent to provide the Store  */
 const Form = props => {
@@ -16,8 +17,11 @@ const Form = props => {
   if (!Array.isArray(props.children)) childrenFields = [props.children];
 
   const { error } = formState;
+  const validate = fieldTarget =>
+    dispatch({ type: types.setField, fieldName: fieldTarget.name, fieldTarget });
 
   const onConfirm = (e, setProgress) => {
+    console.log(inputFields);
     if (!error) {
       e.preventDefault();
       props.submitForm(inputsState(inputFields), setProgress);
@@ -30,6 +34,15 @@ const Form = props => {
     props.altAction();
   };
 
+  const onChange = ({ target }) => validate(target);
+
+  const onBlur = ({ target }) => {
+    dispatch({ type: types.setFirstBlur, payload: firstBlur });
+    console.log(target);
+    validate(target);
+    firstBlur = true;
+  };
+
   /** this map clones the form children (FormField)s and adds some key properties
    * @param [FormField]
    * @returns [FormField] where each field is extended with:
@@ -38,7 +51,7 @@ const Form = props => {
   const formfieldsArray = childrenFields.map((field, index) =>
     React.cloneElement(
       field,
-      { ...field.props, key: index, index, onConfirm },
+      { ...field.props, key: index, index, onConfirm, onChange, onBlur },
       field.props.children
     )
   );

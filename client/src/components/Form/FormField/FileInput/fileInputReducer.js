@@ -20,13 +20,13 @@ const fileInputReducer = (state, action) => {
         files: filteredFiles
       };
     case types.addFiles:
-      const filterFiles = action.payload.filter(
+      let updatedFiles = action.payload.filter(
         file => !state.files.some(stateFile => stateFile.name === file.name)
       );
       let addedTempBlobs = state.blobsList;
-      const updatedFiles = [
+      updatedFiles = [
         ...state.files,
-        ...filterFiles.map(file => {
+        ...updatedFiles.map(file => {
           if (action.path) file.path = action.path;
           Object.assign(file, {
             preview: action.preview ? action.preview : URL.createObjectURL(file),

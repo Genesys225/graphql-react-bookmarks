@@ -38,7 +38,8 @@ const formReducer = (state, action) => {
       return {
         ...state,
         inputFields: updatedFields,
-        error: !!error
+        error: !!error,
+        firstBlur: !error ? false : true
       };
 
     case types.setFirstBlur:
@@ -64,12 +65,13 @@ const init = props => {
 
   fieldsEnum = childrenFields.reduce(
     (result, { title }, index) => ({ ...result, [camelize(title)]: +index }),
-    {}
-  );
-
+    {} // fieldsEnum example: { // they represent the index of each field in the array
+  ); //     field1Name: 0,
+  //        field2Name: 1
+  //      } // it will be in the same order they were mentioned in the JSX and the same order they render
   const initialState = {
     inputFields: childrenFields.map(field =>
-      // creates a field initial state object wit a nested attributes object
+      // creates a field initial state object with a nested attributes object
       ({
         fieldAttributes: fieldAttributes(camelize(field.title), field.props, field.title),
         value: null,
@@ -83,13 +85,11 @@ const init = props => {
   return initialState;
 };
 export const formInitialState = {};
-/**
- * these are the attributes of the input field
- * @type {React.props} - In tag text passed by the FormField the JSX DOM
- */
+/** thiese are the attributes of an input field */
 const fieldAttributes = (camelName, props, childFieldText) => {
   const type = props.type ? props.type : deduceType(childFieldText);
   //compares input.type equal to "number" or "range" and sets attributes and or defaults
+  const additionalClasses = type === "file" ? " mb-1 custom-file-input" : "";
   const returnObj =
     ["number", "range"].indexOf(type) > -1
       ? {
@@ -99,8 +99,9 @@ const fieldAttributes = (camelName, props, childFieldText) => {
       : {};
   if (props.minLength) returnObj.minLength = props.minLength;
   if (props.maxLength) returnObj.maxLength = props.maxLength;
+  if (props.files) returnObj.Files = props.files;
   return {
-    className: "form-control mb-1",
+    className: `form-control${additionalClasses}`,
     id: camelName,
     name: camelName,
     required: true,
