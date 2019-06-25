@@ -15,7 +15,8 @@ export const formActions = {
   types: {
     setField: "setField",
     setFirstBlur: "setFirstBlur",
-    reset: "reset"
+    reset: "reset",
+    init: "init"
   }
 };
 Object.freeze(formActions);

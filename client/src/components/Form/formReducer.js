@@ -4,7 +4,7 @@ import { camelize } from "../../utils/utilities";
 
 const { types } = formActions;
 let fieldsEnum = {};
-
+let initialized = false;
 const formReducer = (state, action) => {
   switch (action.type) {
     case types.setField:
@@ -45,6 +45,10 @@ const formReducer = (state, action) => {
     case types.setFirstBlur:
       return { ...state, firstBlur: action.payload };
 
+    case types.init:
+      if (initialized) return state;
+      return init(action.props);
+
     case types.reset:
       return init(action.props);
 
@@ -81,6 +85,7 @@ const init = props => {
     error: false,
     firstBlur: false
   };
+  initialState && (initialized = true);
 
   return initialState;
 };

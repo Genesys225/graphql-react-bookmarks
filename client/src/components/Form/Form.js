@@ -11,17 +11,18 @@ const Form = props => {
   const { inputFields } = formState;
   const dispatch = useContext(Dispatch);
 
-  useEffect(() => dispatch({ type: types.reset, props }), []);
+  useEffect(() => {
+    dispatch({ type: types.reset, props });
+  }, []);
 
-  let { children: childrenFields } = props;
-  if (!Array.isArray(props.children)) childrenFields = [props.children];
+  const childrenFields = Array.isArray(props.children) ? props.children : [props.children];
+  console.log(childrenFields);
 
   const { error } = formState;
   const validate = fieldTarget =>
     dispatch({ type: types.setField, fieldName: fieldTarget.name, fieldTarget });
 
   const onConfirm = (e, setProgress) => {
-    console.log(inputFields);
     if (!error) {
       e.preventDefault();
       props.submitForm(inputsState(inputFields), setProgress);
@@ -38,7 +39,6 @@ const Form = props => {
 
   const onBlur = ({ target }) => {
     dispatch({ type: types.setFirstBlur, payload: firstBlur });
-    console.log(target);
     validate(target);
     firstBlur = true;
   };
@@ -85,6 +85,18 @@ const Form = props => {
 
 export default Form;
 
+/** produces an object of all the inputs values and error states, eatch input under it's name's key.
+ * example {
+ *            email: {
+ *                      value: "example@email.com",
+ *                      error: false
+ *                   },
+ *            password: {
+ *                        value: "secret",
+ *                        error: "password is too short"
+ *                      }
+ *         }
+ */
 const inputsState = inputFields =>
   inputFields.reduce((result, inputState, index) => {
     const { name } = inputState.fieldAttributes;

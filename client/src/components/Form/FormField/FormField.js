@@ -1,23 +1,23 @@
 import { camelize } from "../../../utils/utilities";
-import React, { useContext, useMemo } from "react";
+import React, { useContext } from "react";
 import FileInput from "./FileInput/FileInput";
-import { State, Dispatch, formActions } from "../Store";
-const { types } = formActions;
+import { State } from "../Store";
+import useWhyDidYouUpdate from "../../../customHooks/whyDidUrender";
+
 /** @type {React.component}
  * @description to be used with Form framework  */
 export const FormField = props => {
-  const fieldName = camelize(props.children.toString());
-  const dispatch = useContext(Dispatch);
+  const { children, onBlur, onChange } = props;
+  const fieldName = camelize(children);
   const { formState } = useContext(State);
+  useWhyDidYouUpdate("Counter", props);
   const { inputFields } = formState;
-  const stateSensetive = inputFields[props.index];
-  const state = useMemo(() => stateSensetive, [stateSensetive]);
-
+  const state = inputFields[props.index];
   const { error, fieldAttributes } = state;
 
   if (!fieldAttributes) return null;
   const { title } = fieldAttributes;
-  const { onBlur, onChange } = props;
+  console.log(fieldAttributes);
   const filteredAttributes = { ...fieldAttributes, onBlur, onChange }; // filterObject(fieldAttributes, "title");
   delete filteredAttributes.title;
   /** switch statement for special fields, defaults
