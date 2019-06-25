@@ -16,7 +16,6 @@ const Form = props => {
   }, []);
 
   const childrenFields = Array.isArray(props.children) ? props.children : [props.children];
-  console.log(childrenFields);
 
   const { error } = formState;
   const validate = fieldTarget =>
