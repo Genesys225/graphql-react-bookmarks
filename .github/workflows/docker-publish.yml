@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: cloudflared-service-token-ssh-proxy
-        uses: Genesys225/cloudflared-service-token-ssh-proxy@V0.8.8
+        uses: Genesys225/cloudflared-service-token-ssh-proxy@V0.8.9
         with:
           HOST: ${{ secrets.HOST }}
           USER: bestme-web
